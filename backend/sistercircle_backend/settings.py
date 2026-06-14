@@ -18,11 +18,7 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = [
-    h.strip()
-    for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-    if h.strip()
-]
+ALLOWED_HOSTS = ["your-app.onrender.com"]
 
 # ---------------------------------------------------------------------------
 # Application definition
@@ -50,6 +46,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 ]
 
 ROOT_URLCONF = "sistercircle_backend.urls"
@@ -77,10 +74,7 @@ WSGI_APPLICATION = "sistercircle_backend.wsgi.application"
 # ---------------------------------------------------------------------------
 
 DATABASES = {
-    "default": dj_database_url.config(
-        default=os.getenv("DATABASE_URL", "sqlite:///db.sqlite3"),
-        conn_max_age=600,
-    )
+    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
 }
 
 # ---------------------------------------------------------------------------
@@ -179,7 +173,9 @@ SIMPLE_JWT = {
 # ---------------------------------------------------------------------------
 
 _cors_raw = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
-CORS_ALLOWED_ORIGINS = [o.strip() for o in _cors_raw.split(",") if o.strip()]
+CORS_ALLOWED_ORIGINS = [
+    "https://your-frontend.vercel.app",
+]
 CORS_ALLOW_CREDENTIALS = True
 
 # Never expose CORS wildcard
