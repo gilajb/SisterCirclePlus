@@ -174,7 +174,7 @@ SIMPLE_JWT = {
 
 _cors_raw = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
 CORS_ALLOWED_ORIGINS = [
-    "https://your-frontend.vercel.app",
+    o.strip() for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000").split(",")
 ]
 CORS_ALLOW_CREDENTIALS = True
 
