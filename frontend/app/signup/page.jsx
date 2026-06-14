@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import api from "@/lib/axios";
 
@@ -17,10 +17,8 @@ const C = {
 const spinnerStyle = `@keyframes sc-spin { to { transform: rotate(360deg); } }`;
 
 function saveTokens(access, refresh) {
-  // localStorage — for axios interceptor
   localStorage.setItem("access_token", access);
   localStorage.setItem("refresh_token", refresh);
-  // Cookie — for Next.js middleware
   const maxAge = 60 * 60 * 24 * 7;
   document.cookie = `access_token=${access}; path=/; max-age=${maxAge}; SameSite=Lax`;
   document.cookie = `refresh_token=${refresh}; path=/; max-age=${maxAge}; SameSite=Lax`;
@@ -108,14 +106,10 @@ function AgeInput({ label, placeholder, value, onChange, badge, hint }) {
   }
   return (
     <TextInput
-      label={label}
-      placeholder={placeholder}
-      type="text"
-      inputMode="numeric"
-      value={value}
-      onChange={handleChange}
-      badge={badge}
-      hint={hint}
+      label={label} placeholder={placeholder}
+      type="text" inputMode="numeric"
+      value={value} onChange={handleChange}
+      badge={badge} hint={hint}
     />
   );
 }
@@ -138,7 +132,9 @@ function Spinner() {
   );
 }
 
-export default function SignupPage() {
+// ── Inner component — uses useSearchParams, must be inside Suspense ──────────
+
+function SignupContent() {
   const router = useRouter();
   const [mobile, setMobile] = useState(false);
   const searchParams = useSearchParams();
@@ -175,9 +171,7 @@ export default function SignupPage() {
     const nameParts = name.trim().split(" ");
     const payload = {
       username: email.split("@")[0],
-      email,
-      password,
-      password2: password,
+      email, password, password2: password,
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
       is_free_tier: Boolean(isFree),
@@ -217,6 +211,31 @@ export default function SignupPage() {
     }
   }
 
+  async function handleCHWSignup() {
+    setSignupError("");
+    if (!name || !email || !password) { setSignupError("Please fill in all fields."); return; }
+    const nameParts = name.trim().split(" ");
+    const payload = {
+      username: email.split("@")[0],
+      email, password, password2: password,
+      first_name: nameParts[0] || "",
+      last_name: nameParts.slice(1).join(" ") || "",
+      is_chw: true, is_free_tier: false,
+      ...(age && { age: Number(age) }),
+      location,
+    };
+    setSignupLoading(true);
+    try {
+      const { data } = await api.post("/api/auth/register/", payload);
+      saveTokens(data.access, data.refresh);
+      router.push("/chw");
+    } catch (err) {
+      setSignupError(flattenErrors(err));
+    } finally {
+      setSignupLoading(false);
+    }
+  }
+
   // ── MOBILE ────────────────────────────────────────────────────────────────
   if (mobile) return (
     <div style={{ background: C.bg, minHeight: "100vh", padding: "40px 24px", display: "flex", flexDirection: "column", gap: "28px" }}>
@@ -238,64 +257,37 @@ export default function SignupPage() {
           </button>
         ))}
       </div>
-      
+
       {tab === "chw" && (
-  <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-    <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "12px", padding: "20px" }}>
-      <div style={{ fontSize: "16px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "8px" }}>CHW Portal Registration</div>
-      <p style={{ fontSize: "14px", color: "#92720A", fontFamily: "system-ui, sans-serif", margin: 0, lineHeight: "1.6" }}>
-        Register as a Community Health Worker to access clinical diagnostic tools, patient history portals, and access code generation.
-      </p>
-    </div>
-    <TextInput label="Full Name" placeholder="e.g., Nurse Fatima" value={name} onChange={setName} />
-    <TextInput label="Institution / Clinic Name" placeholder="e.g., Kenyatta Community Clinic" value={location} onChange={setLocation} />
-    <TextInput label="Email Address" placeholder="name@clinic.org" type="email" value={email} onChange={setEmail} />
-    <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
-    <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
-    <ErrorBanner message={signupError} />
-    <button
-      onClick={async () => {
-        setSignupError("");
-        if (!name || !email || !password) { setSignupError("Please fill in all fields."); return; }
-        const nameParts = name.trim().split(" ");
-        const payload = {
-          username: email.split("@")[0],
-          email, password, password2: password,
-          first_name: nameParts[0] || "",
-          last_name: nameParts.slice(1).join(" ") || "",
-          is_chw: true,
-          is_free_tier: false,
-          ...(age && { age: Number(age) }),
-          location,
-        };
-        setSignupLoading(true);
-        try {
-          const { data } = await api.post("/api/auth/register/", payload);
-          saveTokens(data.access, data.refresh);
-          router.push("/chw");
-        } catch (err) {
-          setSignupError(flattenErrors(err));
-        } finally {
-          setSignupLoading(false);
-        }
-      }}
-      disabled={signupLoading}
-      style={{ background: signupLoading ? C.muted : C.gold, color: C.white, border: "none", borderRadius: "10px", padding: "16px", fontSize: "16px", fontWeight: "700", cursor: signupLoading ? "not-allowed" : "pointer", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
-    >
-      {signupLoading ? <><Spinner /> Registering…</> : "Register as CHW →"}
-    </button>
-  </div>
-    )}
+        <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+          <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "12px", padding: "20px" }}>
+            <div style={{ fontSize: "16px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "8px" }}>CHW Portal Registration</div>
+            <p style={{ fontSize: "14px", color: "#92720A", fontFamily: "system-ui, sans-serif", margin: 0, lineHeight: "1.6" }}>
+              Register as a Community Health Worker to access clinical diagnostic tools, patient history portals, and access code generation.
+            </p>
+          </div>
+          <TextInput label="Full Name" placeholder="e.g., Nurse Fatima" value={name} onChange={setName} />
+          <TextInput label="Institution / Clinic Name" placeholder="e.g., Kenyatta Community Clinic" value={location} onChange={setLocation} />
+          <TextInput label="Email Address" placeholder="name@clinic.org" type="email" value={email} onChange={setEmail} />
+          <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
+          <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
+          <ErrorBanner message={signupError} />
+          <button
+            onClick={handleCHWSignup}
+            disabled={signupLoading}
+            style={{ background: signupLoading ? C.muted : C.gold, color: C.white, border: "none", borderRadius: "10px", padding: "16px", fontSize: "16px", fontWeight: "700", cursor: signupLoading ? "not-allowed" : "pointer", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+          >
+            {signupLoading ? <><Spinner /> Registering…</> : "Register as CHW →"}
+          </button>
+        </div>
+      )}
 
       {tab === "signup" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
           <TextInput label="Full Name" placeholder="e.g., Amara Okafor" value={name} onChange={setName} />
           <TextInput label="Email Address" placeholder="name@example.com" type="email" value={email} onChange={setEmail} />
           <AgeInput
-            label="Age"
-            placeholder="Enter your age"
-            value={age}
-            onChange={setAge}
+            label="Age" placeholder="Enter your age" value={age} onChange={setAge}
             badge={isFree ? "✓ FREE ACCESS" : "FREE ACCESS FOR <25"}
             hint="SisterCircle+ is free for young women under 25 to ensure clinical support during early reproductive health journeys."
           />
@@ -342,7 +334,12 @@ export default function SignupPage() {
         <div>
           <div style={{ fontSize: "15px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "4px" }}>Health Professional?</div>
           <div style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", marginBottom: "10px", lineHeight: "1.5" }}>Access clinical diagnostic tools and patient history portals.</div>
-          <span style={{ fontSize: "13px", fontWeight: "700", color: C.gold, fontFamily: "system-ui, sans-serif", cursor: "pointer" }}>CHW Portal Registration →</span>
+          <span
+            onClick={() => setTab("chw")}
+            style={{ fontSize: "13px", fontWeight: "700", color: C.gold, fontFamily: "system-ui, sans-serif", cursor: "pointer" }}
+          >
+            CHW Portal Registration →
+          </span>
         </div>
       </div>
 
@@ -389,7 +386,6 @@ export default function SignupPage() {
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", padding: "48px 60px", background: C.bg, overflowY: "auto" }}>
         <div style={{ maxWidth: "440px", width: "100%", margin: "0 auto", display: "flex", flexDirection: "column", gap: "28px" }}>
 
-          {/* Tab toggle */}
           <div style={{ display: "flex", background: "#EDE8E4", borderRadius: "100px", padding: "4px" }}>
             {["signup", "login", "chw"].map(t => (
               <button
@@ -399,10 +395,9 @@ export default function SignupPage() {
               >
                 {t === "signup" ? "Sign Up" : t === "login" ? "Log In" : "CHW"}
               </button>
-          ))}
+            ))}
           </div>
 
-          {/* Sign up form */}
           {tab === "signup" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <TextInput label="Full Name" placeholder="Grace Adeleke" value={name} onChange={setName} />
@@ -431,7 +426,6 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* Login form */}
           {tab === "login" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <TextInput label="Email Address" placeholder="grace@example.com" type="email" value={loginEmail} onChange={setLoginEmail} />
@@ -450,13 +444,39 @@ export default function SignupPage() {
             </div>
           )}
 
-          {/* CHW link */}
+          {tab === "chw" && (
+            <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
+              <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "12px", padding: "20px" }}>
+                <div style={{ fontSize: "16px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "8px" }}>CHW Portal Registration</div>
+                <p style={{ fontSize: "14px", color: "#92720A", fontFamily: "system-ui, sans-serif", margin: 0, lineHeight: "1.6" }}>
+                  Register as a Community Health Worker to access clinical diagnostic tools, patient history portals, and access code generation.
+                </p>
+              </div>
+              <TextInput label="Full Name" placeholder="e.g., Nurse Fatima" value={name} onChange={setName} />
+              <TextInput label="Institution / Clinic Name" placeholder="e.g., Kenyatta Community Clinic" value={location} onChange={setLocation} />
+              <TextInput label="Email Address" placeholder="name@clinic.org" type="email" value={email} onChange={setEmail} />
+              <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
+              <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
+              <ErrorBanner message={signupError} />
+              <button
+                onClick={handleCHWSignup}
+                disabled={signupLoading}
+                style={{ background: signupLoading ? C.muted : C.gold, color: C.white, border: "none", borderRadius: "10px", padding: "16px", fontSize: "16px", fontWeight: "700", cursor: signupLoading ? "not-allowed" : "pointer", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
+              >
+                {signupLoading ? <><Spinner /> Registering…</> : "Register as CHW →"}
+              </button>
+            </div>
+          )}
+
           <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: "24px", display: "flex", alignItems: "center", gap: "14px" }}>
             <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: C.goldLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", flexShrink: 0 }}>⊕</div>
             <div style={{ flex: 1 }}>
               <span style={{ fontSize: "14px", color: C.body, fontFamily: "system-ui, sans-serif" }}>Are you a Community Health Worker?</span>
             </div>
-            <span style={{ fontSize: "13px", fontWeight: "700", color: C.gold, cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "underline", whiteSpace: "nowrap" }}>
+            <span
+              onClick={() => setTab("chw")}
+              style={{ fontSize: "13px", fontWeight: "700", color: C.gold, cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "underline", whiteSpace: "nowrap" }}
+            >
               Register your institution here
             </span>
           </div>
@@ -467,5 +487,19 @@ export default function SignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+// ── Page export — wraps SignupContent in Suspense to satisfy Next.js 15 ──────
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#F7F3F0", fontFamily: "system-ui, sans-serif", color: "#888888" }}>
+        Loading…
+      </div>
+    }>
+      <SignupContent />
+    </Suspense>
   );
 }
