@@ -28,6 +28,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "age",
             "location",
             "is_chw",
+            "is_free_tier",
         )
         extra_kwargs = {
             "email": {"required": True},
@@ -41,6 +42,12 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("password2")
         password = validated_data.pop("password")
+        
+        # Auto-set is_free_tier based on age — don't trust frontend
+        age = validated_data.get("age")
+        if age is not None and age <= 25:
+            validated_data["is_free_tier"] = True
+        
         user = User(**validated_data)
         user.set_password(password)
         user.save()
