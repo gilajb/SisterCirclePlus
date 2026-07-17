@@ -1,9 +1,7 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useNavigate, Link } from "react-router-dom";
 import api from "@/lib/axios";
+import { requireAuth } from "@/lib/auth";
 
 // ---------------------------------------------------------------------------
 // Design tokens
@@ -211,7 +209,7 @@ function Spinner() {
 // ---------------------------------------------------------------------------
 
 export default function SymptomCheckPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const [authChecked, setAuthChecked] = useState(false);
   const [mobile, setMobile] = useState(false);
@@ -228,13 +226,8 @@ export default function SymptomCheckPage() {
 
   // ── Auth guard ──────────────────────────────────────────────────────────
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) {
-      router.replace("/signup");
-      return;
-    }
-    setAuthChecked(true);
-  }, [router]);
+    setAuthChecked(requireAuth(navigate));
+  }, [navigate]);
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768);
@@ -275,7 +268,7 @@ export default function SymptomCheckPage() {
     try {
       const { data } = await api.post("/api/symptoms/analyse/", payload);
       sessionStorage.setItem("sistercircle_result", JSON.stringify(data));
-      router.push("/results");
+      navigate("/results");
     } catch (err) {
       const errData = err.response?.data;
       if (typeof errData === "string") {
@@ -314,10 +307,10 @@ export default function SymptomCheckPage() {
           borderBottom: `1px solid ${C.border}`,
           position: "sticky", top: 0, zIndex: 100,
         }}>
-          <Link href="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
+          <Link to="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
           <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <Link href="/dashboard" style={{ fontSize: "15px", cursor: "pointer", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "400" }}>Dashboard</Link>
-            <Link href="/symptom-check" style={{ fontSize: "15px", cursor: "pointer", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", borderBottom: `2px solid ${C.pink}`, paddingBottom: "2px", fontWeight: "600" }}>Symptom Check</Link>
+            <Link to="/dashboard" style={{ fontSize: "15px", cursor: "pointer", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "400" }}>Dashboard</Link>
+            <Link to="/symptom-check" style={{ fontSize: "15px", cursor: "pointer", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", borderBottom: `2px solid ${C.pink}`, paddingBottom: "2px", fontWeight: "600" }}>Symptom Check</Link>
             <span style={{ fontSize: "15px", cursor: "pointer", color: C.charcoal, fontFamily: "system-ui, sans-serif", fontWeight: "400" }}>Resources</span>
             <span style={{ fontSize: "20px" }}>🔔</span>
             <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#C4A882" }} />
@@ -330,7 +323,7 @@ export default function SymptomCheckPage() {
           borderBottom: `1px solid ${C.border}`,
           position: "sticky", top: 0, zIndex: 100,
         }}>
-          <span onClick={() => step > 1 ? setStep(s => s - 1) : router.push("/")} style={{ fontSize: "20px", cursor: "pointer", color: C.charcoal }}>✕</span>
+          <span onClick={() => step > 1 ? setStep(s => s - 1) : navigate("/")} style={{ fontSize: "20px", cursor: "pointer", color: C.charcoal }}>✕</span>
           <span style={{ fontSize: "17px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif" }}>SisterCircle+</span>
           <span style={{ fontSize: "18px" }}>📱</span>
         </nav>
@@ -616,7 +609,7 @@ export default function SymptomCheckPage() {
         <footer style={{ background: C.footerBg, padding: "40px 48px" }}>
           <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "24px" }}>
             <div>
-              <Link href="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", marginBottom: "8px", display: "block", textDecoration: "none" }}>SisterCircle+</Link>
+              <Link to="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", marginBottom: "8px", display: "block", textDecoration: "none" }}>SisterCircle+</Link>
               <div style={{ fontSize: "13px", color: C.muted, fontFamily: "system-ui, sans-serif", maxWidth: "320px", lineHeight: "1.6" }}>
                 © 2026 SisterCircle+. Medical Clarity through Clinical Warmth. Dedicated to reproductive health equity and empathetic diagnostic care.
               </div>

@@ -1,8 +1,5 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useNavigate, Link } from "react-router-dom";
 import api from "@/lib/axios";
 
 // ---------------------------------------------------------------------------
@@ -192,7 +189,7 @@ function downloadReport(result) {
 // ---------------------------------------------------------------------------
 
 export default function ResultsPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
   const [result, setResult] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -203,15 +200,15 @@ export default function ResultsPage() {
   useEffect(() => {
     const raw = sessionStorage.getItem("sistercircle_result");
     if (!raw) {
-      router.replace("/symptom-check");
+      navigate("/symptom-check", { replace: true });
       return;
     }
     try {
       setResult(JSON.parse(raw));
     } catch {
-      router.replace("/symptom-check");
+      navigate("/symptom-check", { replace: true });
     }
-  }, [router]);
+  }, [navigate]);
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768);
@@ -230,7 +227,7 @@ export default function ResultsPage() {
       });
       setSaved(true);
       // Brief pause so the user sees the confirmation, then navigate
-      setTimeout(() => router.push("/dashboard"), 800);
+      setTimeout(() => navigate("/dashboard"), 800);
     } catch (err) {
       setSaveError("Could not save to dashboard. Please try again.");
       setSaving(false);
@@ -259,10 +256,10 @@ export default function ResultsPage() {
           borderBottom: `1px solid ${C.border}`,
           position: "sticky", top: 0, zIndex: 100,
         }}>
-          <Link href="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
+          <Link to="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
           <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <Link href="/dashboard" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "400" }}>Dashboard</Link>
-            <Link href="/symptom-check" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", borderBottom: `2px solid ${C.pink}`, paddingBottom: "2px", fontWeight: "600" }}>Symptom Check</Link>
+            <Link to="/dashboard" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "400" }}>Dashboard</Link>
+            <Link to="/symptom-check" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", borderBottom: `2px solid ${C.pink}`, paddingBottom: "2px", fontWeight: "600" }}>Symptom Check</Link>
             <span style={{ fontSize: "15px", cursor: "pointer", color: C.charcoal, fontFamily: "system-ui, sans-serif" }}>Resources</span>
             <span style={{ fontSize: "20px" }}>🔔</span>
             <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#C4A882" }} />
@@ -275,7 +272,7 @@ export default function ResultsPage() {
           borderBottom: `1px solid ${C.border}`,
           position: "sticky", top: 0, zIndex: 100,
         }}>
-          <Link href="/symptom-check" style={{ fontSize: "20px", color: C.charcoal, textDecoration: "none" }}>←</Link>
+          <Link to="/symptom-check" style={{ fontSize: "20px", color: C.charcoal, textDecoration: "none" }}>←</Link>
           <span style={{ fontSize: "17px", fontWeight: "700", color: C.mauve, fontFamily: "Georgia, serif" }}>Analysis</span>
           <span onClick={() => downloadReport(result)} style={{ fontSize: "18px", cursor: "pointer", color: C.charcoal }}>↗</span>
         </nav>
@@ -503,7 +500,7 @@ export default function ResultsPage() {
           <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", flexWrap: "wrap", gap: "24px" }}>
               <div>
-                <Link href="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", marginBottom: "6px", display: "block", textDecoration: "none" }}>SisterCircle+</Link>
+                <Link to="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", marginBottom: "6px", display: "block", textDecoration: "none" }}>SisterCircle+</Link>
                 <div style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif" }}>© 2026 SisterCircle+. Medical Clarity through Clinical Warmth.</div>
               </div>
               <div style={{ display: "flex", gap: "48px" }}>

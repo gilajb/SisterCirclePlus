@@ -1,8 +1,5 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { Link } from "react-router-dom";
 
 const C = {
   bg: "#F7F3F0",
@@ -22,7 +19,6 @@ const C = {
 };
 
 export default function LandingPage() {
-  const router = useRouter();
   const [mobile, setMobile] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -50,19 +46,19 @@ export default function LandingPage() {
         background: C.bg, borderBottom: `1px solid ${C.border}`,
         position: "sticky", top: 0, zIndex: 100,
       }}>
-        <Link href="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>
+        <Link to="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>
           SisterCircle+
         </Link>
         {!mobile ? (
           <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <Link href="/dashboard" style={{
+            <Link to="/dashboard" style={{
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif",
               borderBottom: `2px solid ${C.pink}`,
               paddingBottom: "2px", fontWeight: "600",
               textDecoration: "none",
             }}>Dashboard</Link>
-            <Link href="/symptom-check" style={{
+            <Link to="/symptom-check" style={{
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
               textDecoration: "none",
@@ -72,14 +68,14 @@ export default function LandingPage() {
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
             }}>Resources</span>
             <span style={{ fontSize: "20px", cursor: "pointer" }}>🔔</span>
-            <Link href="/signup" style={{ display: "flex", alignItems: "center" }}>
+            <Link to="/signup" style={{ display: "flex", alignItems: "center" }}>
               <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: C.border }} />
             </Link>
           </div>
         ) : (
           <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
             <span style={{ fontSize: "20px" }}>🔔</span>
-            <Link href="/signup" style={{ display: "flex", alignItems: "center" }}>
+            <Link to="/signup" style={{ display: "flex", alignItems: "center" }}>
               <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: C.border }} />
             </Link>
           </div>
@@ -117,7 +113,7 @@ export default function LandingPage() {
               : "We provide clinical warmth through sophisticated AI diagnostics tailored specifically for African women. Understand your health with dignity and clarity."}
           </p>
           <div style={{ display: "flex", flexDirection: mobile ? "column" : "row", gap: "14px", marginTop: "8px" }}>
-            <Link href="/signup" style={{ textDecoration: "none" }}>
+            <Link to="/signup" style={{ textDecoration: "none" }}>
               <button style={{
                 background: C.pink, color: C.white, border: "none",
                 borderRadius: "8px", padding: "14px 28px",
@@ -129,8 +125,8 @@ export default function LandingPage() {
                 Check My Symptoms {mobile && "→"}
               </button>
             </Link>
-            
-            <Link href="/signup?type=chw" style={{ textDecoration: "none" }}>
+
+            <Link to="/signup?type=chw" style={{ textDecoration: "none" }}>
               <button style={{
                 background: "transparent", color: C.charcoal,
                 border: `1.5px solid ${C.charcoal}`, borderRadius: "8px",
@@ -316,16 +312,16 @@ export default function LandingPage() {
             gap: "32px", marginBottom: "32px",
           }}>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px", gridColumn: mobile ? "1 / -1" : "auto" }}>
-              <Link href="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
+              <Link to="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
               <p style={{ fontSize: "13px", color: "#999", lineHeight: "1.6", margin: 0, fontFamily: "system-ui, sans-serif" }}>
                 Medical Clarity through Clinical Warmth. We bridge the gap between diagnostic data and the human heart.
               </p>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>Product</span>
-              <Link href="/symptom-check" style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif", textDecoration: "none" }}>Symptom Check</Link>
+              <Link to="/symptom-check" style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif", textDecoration: "none" }}>Symptom Check</Link>
               <span style={{ fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>Resources</span>
-              <Link href="/dashboard" style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif", textDecoration: "none" }}>Dashboard</Link>
+              <Link to="/dashboard" style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif", textDecoration: "none" }}>Dashboard</Link>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>About</span>
@@ -349,10 +345,10 @@ export default function LandingPage() {
           {/* Mobile bottom nav */}
           {mobile && (
             <div style={{ display: "flex", justifyContent: "space-around", padding: "16px 0", borderTop: "1px solid #333", marginTop: "8px" }}>
-              <Link href="/" style={{ fontSize: "22px", textDecoration: "none" }}>🏠</Link>
-              <Link href="/symptom-check" style={{ fontSize: "22px", textDecoration: "none" }}>🔍</Link>
-              <Link href="/signup" style={{ fontSize: "22px", textDecoration: "none" }}>👤</Link>
-              <Link href="/dashboard" style={{ fontSize: "22px", textDecoration: "none" }}>📋</Link>
+              <Link to="/" style={{ fontSize: "22px", textDecoration: "none" }}>🏠</Link>
+              <Link to="/symptom-check" style={{ fontSize: "22px", textDecoration: "none" }}>🔍</Link>
+              <Link to="/signup" style={{ fontSize: "22px", textDecoration: "none" }}>👤</Link>
+              <Link to="/dashboard" style={{ fontSize: "22px", textDecoration: "none" }}>📋</Link>
             </div>
           )}
 

@@ -1,9 +1,7 @@
-"use client";
-
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useNavigate, Link } from "react-router-dom";
 import api from "@/lib/axios";
+import { requireAuth, decodePayload } from "@/lib/auth";
 
 // ---------------------------------------------------------------------------
 // Design tokens
@@ -258,7 +256,7 @@ function EmptyState({ mobile }) {
       <p style={{ fontSize: "15px", color: C.body, margin: 0, fontFamily: "system-ui, sans-serif", maxWidth: "340px", lineHeight: "1.6" }}>
         Your health history will appear here after your first symptom check. Let's start listening to your body.
       </p>
-      <Link href="/symptom-check" style={{ textDecoration: "none" }}>
+      <Link to="/symptom-check" style={{ textDecoration: "none" }}>
         <button style={{
           background: C.mauve, color: C.white,
           border: "none", borderRadius: "8px",
@@ -278,7 +276,7 @@ function EmptyState({ mobile }) {
 // ---------------------------------------------------------------------------
 
 export default function DashboardPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submissions, setSubmissions] = useState([]);
@@ -286,20 +284,17 @@ export default function DashboardPage() {
 
   // Auth guard + data fetch
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) { router.replace("/signup"); return; }
+    if (!requireAuth(navigate)) return;
 
-    // Grab username from JWT payload (base64 middle segment)
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      setUsername(payload.username || payload.name || "");
-    } catch {}
+    // Grab username from JWT payload
+    const payload = decodePayload();
+    setUsername(payload?.username || payload?.name || "");
 
     api.get("/api/symptoms/history/")
       .then(res => setSubmissions(res.data))
       .catch(() => {}) // 401 handled by axios interceptor → redirect to /signup
       .finally(() => setLoading(false));
-  }, [router]);
+  }, [navigate]);
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768);
@@ -316,12 +311,9 @@ export default function DashboardPage() {
 
   // Member since: decode from JWT (date_joined isn't in history, so use token iat as fallback)
   const memberSince = (() => {
-    try {
-      const token = localStorage.getItem("access_token");
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      const iat = payload.iat ? new Date(payload.iat * 1000).toISOString() : null;
-      return formatMemberSince(iat);
-    } catch { return "—"; }
+    const payload = decodePayload();
+    const iat = payload?.iat ? new Date(payload.iat * 1000).toISOString() : null;
+    return formatMemberSince(iat);
   })();
 
   const greeting = (() => {
@@ -347,10 +339,10 @@ export default function DashboardPage() {
           borderBottom: `1px solid ${C.border}`,
           position: "sticky", top: 0, zIndex: 100,
         }}>
-          <Link href="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
+          <Link to="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
           <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <Link href="/dashboard" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", borderBottom: `2px solid ${C.pink}`, paddingBottom: "2px", fontWeight: "600" }}>Dashboard</Link>
-            <Link href="/symptom-check" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "400" }}>Symptom Check</Link>
+            <Link to="/dashboard" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", borderBottom: `2px solid ${C.pink}`, paddingBottom: "2px", fontWeight: "600" }}>Dashboard</Link>
+            <Link to="/symptom-check" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "400" }}>Symptom Check</Link>
             <span style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", cursor: "pointer" }}>Resources</span>
             <span style={{ fontSize: "20px" }}>🔔</span>
             <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #6B8F71, #4A7A8A)" }} />
@@ -363,7 +355,7 @@ export default function DashboardPage() {
           borderBottom: `1px solid ${C.border}`,
           position: "sticky", top: 0, zIndex: 100,
         }}>
-          <Link href="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
+          <Link to="/" style={{ fontSize: "20px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", textDecoration: "none" }}>SisterCircle+</Link>
           <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
             <span style={{ fontSize: "20px" }}>🔔</span>
             <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#C4A882", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>📱</div>
@@ -397,7 +389,7 @@ export default function DashboardPage() {
               </p>
             </div>
             {!mobile && (
-              <Link href="/symptom-check" style={{ textDecoration: "none" }}>
+              <Link to="/symptom-check" style={{ textDecoration: "none" }}>
                 <button style={{
                   background: C.mauve, color: C.white,
                   border: "none", borderRadius: "8px",
@@ -499,7 +491,7 @@ export default function DashboardPage() {
                   {!mobile ? (
                     <span style={{ background: C.bg, fontSize: "12px", color: C.body, padding: "4px 12px", borderRadius: "100px", fontFamily: "system-ui, sans-serif", border: `1px solid ${C.border}` }}>Pain Data</span>
                   ) : (
-                    <Link href="/symptom-check" style={{ textDecoration: "none" }}>
+                    <Link to="/symptom-check" style={{ textDecoration: "none" }}>
                       <span style={{ fontSize: "13px", color: C.pink, fontFamily: "system-ui, sans-serif", fontWeight: "600", cursor: "pointer" }}>New Check</span>
                     </Link>
                   )}
@@ -624,7 +616,7 @@ export default function DashboardPage() {
         <footer style={{ background: C.footerBg, padding: "40px 48px", borderTop: `1px solid ${C.border}` }}>
           <div style={{ maxWidth: "1100px", margin: "0 auto", display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: "32px" }}>
             <div>
-              <Link href="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", marginBottom: "8px", display: "block", textDecoration: "none" }}>SisterCircle+</Link>
+              <Link to="/" style={{ fontSize: "18px", fontWeight: "700", color: C.pink, fontFamily: "Georgia, serif", marginBottom: "8px", display: "block", textDecoration: "none" }}>SisterCircle+</Link>
               <div style={{ fontSize: "13px", color: C.muted, fontFamily: "system-ui, sans-serif" }}>Medical Clarity through Clinical Warmth.</div>
             </div>
             {[
@@ -650,7 +642,7 @@ export default function DashboardPage() {
       {mobile && (
         <>
           <div style={{ position: "fixed", bottom: "64px", left: "20px", right: "20px" }}>
-            <Link href="/symptom-check" style={{ textDecoration: "none" }}>
+            <Link to="/symptom-check" style={{ textDecoration: "none" }}>
               <button style={{
                 width: "100%", background: C.progressFill, color: C.white,
                 border: "none", borderRadius: "100px",
@@ -674,7 +666,7 @@ export default function DashboardPage() {
               { icon: "💬", label: "Support", href: "#" },
               { icon: "👤", label: "Account", href: "/signup" },
             ].map((item, i) => (
-              <Link key={item.label} href={item.href} style={{ textDecoration: "none" }}>
+              <Link key={item.label} to={item.href} style={{ textDecoration: "none" }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", cursor: "pointer" }}>
                   <span style={{ fontSize: "20px" }}>{item.icon}</span>
                   <span style={{ fontSize: "10px", color: i === 0 ? C.pink : C.muted, fontFamily: "system-ui, sans-serif", fontWeight: i === 0 ? "600" : "400" }}>{item.label}</span>

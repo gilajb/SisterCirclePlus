@@ -1,9 +1,7 @@
-"use client";
-
-import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "@/lib/axios";
+import { requireAuth, decodePayload, removeToken } from "@/lib/auth";
 
 // ---------------------------------------------------------------------------
 // Design tokens
@@ -176,7 +174,7 @@ const PRIORITY_PATIENTS = [
 // Main page
 // ---------------------------------------------------------------------------
 export default function CHWPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [username, setUsername] = useState("CHW");
@@ -210,23 +208,17 @@ export default function CHWPage() {
   // Auth guard + CHW check
   // ---------------------------------------------------------------------------
   useEffect(() => {
-    const token = localStorage.getItem("access_token");
-    if (!token) { router.replace("/signup"); return; }
+    if (!requireAuth(navigate)) return;
 
     // Decode JWT to check is_chw
-    try {
-      const payload = JSON.parse(atob(token.split(".")[1]));
-      if (!payload.is_chw) {
-        router.replace("/dashboard?error=chw_required");
-        return;
-      }
-      setUsername(payload.username || "CHW");
-    } catch {
-      router.replace("/dashboard?error=chw_required");
+    const payload = decodePayload();
+    if (!payload?.is_chw) {
+      navigate("/dashboard?error=chw_required", { replace: true });
       return;
     }
+    setUsername(payload.username || "CHW");
     setAuthChecked(true);
-  }, [router]);
+  }, [navigate]);
 
   // Responsive
   useEffect(() => {
@@ -351,7 +343,7 @@ export default function CHWPage() {
             <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 16px", cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: "13px", color: C.muted }}>
               <span>❓</span> Support
             </div>
-            <div onClick={() => { localStorage.removeItem("access_token"); localStorage.removeItem("refresh_token"); document.cookie = "access_token=; max-age=0"; router.push("/signup"); }} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 16px", cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: "13px", color: C.muted }}>
+            <div onClick={() => { removeToken(); navigate("/signup"); }} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 16px", cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: "13px", color: C.muted }}>
               <span>→</span> Log Out
             </div>
             <button style={{ background: C.urgent, color: C.white, border: "none", borderRadius: "8px", padding: "12px 16px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "system-ui, sans-serif", marginTop: "8px" }}>

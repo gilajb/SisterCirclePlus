@@ -1,8 +1,7 @@
-"use client";
-
-import { useState, useEffect, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import api from "@/lib/axios";
+import { setToken } from "@/lib/auth";
 
 const C = {
   bg: "#F7F3F0", white: "#FFFFFF", pink: "#D4547A",
@@ -15,14 +14,6 @@ const C = {
 };
 
 const spinnerStyle = `@keyframes sc-spin { to { transform: rotate(360deg); } }`;
-
-function saveTokens(access, refresh) {
-  localStorage.setItem("access_token", access);
-  localStorage.setItem("refresh_token", refresh);
-  const maxAge = 60 * 60 * 24 * 7;
-  document.cookie = `access_token=${access}; path=/; max-age=${maxAge}; SameSite=Lax`;
-  document.cookie = `refresh_token=${refresh}; path=/; max-age=${maxAge}; SameSite=Lax`;
-}
 
 function flattenErrors(err) {
   if (!err.response?.data) return "Something went wrong. Please try again.";
@@ -132,12 +123,12 @@ function Spinner() {
   );
 }
 
-// ── Inner component — uses useSearchParams, must be inside Suspense ──────────
+// ---------------------------------------------------------------------------
 
-function SignupContent() {
-  const router = useRouter();
+export default function SignupPage() {
+  const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
-  const searchParams = useSearchParams();
+  const [searchParams] = useSearchParams();
   const [tab, setTab] = useState(searchParams.get("type") === "chw" ? "chw" : "signup");
 
   const [name, setName] = useState("");
@@ -181,8 +172,8 @@ function SignupContent() {
     setSignupLoading(true);
     try {
       const { data } = await api.post("/api/auth/register/", payload);
-      saveTokens(data.access, data.refresh);
-      router.push("/symptom-check");
+      setToken(data.access, data.refresh);
+      navigate("/symptom-check");
     } catch (err) {
       setSignupError(flattenErrors(err));
     } finally {
@@ -202,8 +193,8 @@ function SignupContent() {
         username: loginEmail.includes("@") ? loginEmail.split("@")[0] : loginEmail,
         password: loginPassword,
       });
-      saveTokens(data.access, data.refresh);
-      router.push("/dashboard");
+      setToken(data.access, data.refresh);
+      navigate("/dashboard");
     } catch (err) {
       setLoginError(flattenErrors(err));
     } finally {
@@ -227,8 +218,8 @@ function SignupContent() {
     setSignupLoading(true);
     try {
       const { data } = await api.post("/api/auth/register/", payload);
-      saveTokens(data.access, data.refresh);
-      router.push("/chw");
+      setToken(data.access, data.refresh);
+      navigate("/chw");
     } catch (err) {
       setSignupError(flattenErrors(err));
     } finally {
@@ -487,19 +478,5 @@ function SignupContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-// ── Page export — wraps SignupContent in Suspense to satisfy Next.js 15 ──────
-
-export default function SignupPage() {
-  return (
-    <Suspense fallback={
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "100vh", background: "#F7F3F0", fontFamily: "system-ui, sans-serif", color: "#888888" }}>
-        Loading…
-      </div>
-    }>
-      <SignupContent />
-    </Suspense>
   );
 }
