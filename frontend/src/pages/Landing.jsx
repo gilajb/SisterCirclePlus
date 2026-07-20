@@ -36,6 +36,10 @@ export default function LandingPage() {
   // Don't render until auth check is done — avoids flash of landing for logged-in users
   if (!authChecked) return null;
 
+  function scrollToId(id) {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  }
+
   return (
     <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", background: C.bg, color: C.charcoal, margin: 0, padding: 0, overflowX: "hidden" }}>
 
@@ -51,33 +55,47 @@ export default function LandingPage() {
         </Link>
         {!mobile ? (
           <div style={{ display: "flex", gap: "32px", alignItems: "center" }}>
-            <Link to="/dashboard" style={{
+            <Link to="/" style={{
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif",
               borderBottom: `2px solid ${C.pink}`,
               paddingBottom: "2px", fontWeight: "600",
               textDecoration: "none",
-            }}>Dashboard</Link>
-            <Link to="/symptom-check" style={{
+            }}>Home</Link>
+            <span onClick={() => scrollToId("why-sistercircle")} style={{
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
-              textDecoration: "none",
-            }}>Symptom Check</Link>
+            }}>About</span>
+            <span onClick={() => scrollToId("contact")} style={{
+              fontSize: "15px", cursor: "pointer", color: C.charcoal,
+              fontFamily: "system-ui, sans-serif", fontWeight: "400",
+            }}>Contact Us</span>
             <span style={{
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
             }}>Resources</span>
+            <Link to="/pricing" style={{
+              fontSize: "15px", cursor: "pointer", color: C.charcoal,
+              fontFamily: "system-ui, sans-serif", fontWeight: "400",
+              textDecoration: "none",
+            }}>Pricing</Link>
             <span style={{ fontSize: "20px", cursor: "pointer" }}>🔔</span>
-            <Link to="/signup" style={{ display: "flex", alignItems: "center" }}>
-              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: C.border }} />
-            </Link>
+            <Link to="/signup" style={{
+              background: C.pink, color: C.white, textDecoration: "none",
+              borderRadius: "8px", padding: "10px 20px",
+              fontSize: "14px", fontWeight: "600",
+              fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap",
+            }}>Sign In / Sign Up</Link>
           </div>
         ) : (
-          <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
+          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
             <span style={{ fontSize: "20px" }}>🔔</span>
-            <Link to="/signup" style={{ display: "flex", alignItems: "center" }}>
-              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: C.border }} />
-            </Link>
+            <Link to="/signup" style={{
+              background: C.pink, color: C.white, textDecoration: "none",
+              borderRadius: "8px", padding: "8px 14px",
+              fontSize: "13px", fontWeight: "600",
+              fontFamily: "system-ui, sans-serif", whiteSpace: "nowrap",
+            }}>Sign In</Link>
           </div>
         )}
       </nav>
@@ -186,7 +204,7 @@ export default function LandingPage() {
       </div>
 
       {/* WHY SISTERCIRCLE / DESIGNED FOR DIGNITY */}
-      <section style={{ padding: mobile ? "56px 24px" : "72px 48px", background: C.bg }}>
+      <section id="why-sistercircle" style={{ padding: mobile ? "56px 24px" : "72px 48px", background: C.bg }}>
         <div style={{ maxWidth: "1100px", margin: "0 auto" }}>
           <h2 style={{
             textAlign: "center", fontSize: mobile ? "24px" : "34px",
@@ -331,7 +349,7 @@ export default function LandingPage() {
               ))}
             </div>
             {!mobile && (
-              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <div id="contact" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>Contact</span>
                 <span style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif" }}>hello@sistercircleplus.com</span>
                 <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
