@@ -134,7 +134,7 @@ export default function LandingPage() {
                 cursor: "pointer", fontFamily: "system-ui, sans-serif",
                 width: mobile ? "100%" : "auto",
               }}>
-                I'm a Health Worker
+                I'm an Institution
               </button>
             </Link>
           </div>
@@ -174,7 +174,7 @@ export default function LandingPage() {
       }}>
         {(mobile
           ? [{ icon: "✓", label: "WHO Verified" }, { icon: "✓", label: "AfricaCDC" }, { icon: "✓", label: "SafeCare" }]
-          : [{ icon: "🌍", label: "Global Reach" }, { icon: "✦", label: "AI-Powered" }, { icon: "📍", label: "African-First" }, { icon: "💻", label: "Free for Under 25s" }]
+          : [{ icon: "🌍", label: "Global Reach" }, { icon: "✦", label: "AI-Powered" }, { icon: "📍", label: "African-First" }, { icon: "💻", label: "Free to Start" }]
         ).map((t) => (
           <div key={t.label} style={{
             display: "flex", alignItems: "center", gap: "8px",
@@ -213,7 +213,7 @@ export default function LandingPage() {
             ] : [
               { icon: "✦", iconBg: C.pinkPale, title: "AI-Powered Analysis", desc: "Our proprietary algorithms are trained on diverse datasets to provide the most accurate health insights for your unique profile.", highlight: false },
               { icon: "🛡", iconBg: C.pinkPale, title: "No Specialist Needed", desc: "Skip the waiting rooms. Get clinical-grade triage results and actionable next steps directly through your mobile device.", highlight: true },
-              { icon: "♥", iconBg: C.goldLight, title: "Free for Under 25s", desc: "We believe health equity starts early. Every sister under 25 gets full access to our premium diagnostic tools at zero cost.", highlight: false },
+              { icon: "♥", iconBg: C.goldLight, title: "Free to Start", desc: "Every woman gets a free symptom check, AI triage, and doctor referral — no age restriction, no payment required to begin.", highlight: false },
             ]).map((card) => (
               <div key={card.title} style={{
                 background: C.white,
@@ -322,6 +322,7 @@ export default function LandingPage() {
               <Link to="/symptom-check" style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif", textDecoration: "none" }}>Symptom Check</Link>
               <span style={{ fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>Resources</span>
               <Link to="/dashboard" style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif", textDecoration: "none" }}>Dashboard</Link>
+              <Link to="/pricing" style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif", textDecoration: "none" }}>Pricing</Link>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>About</span>

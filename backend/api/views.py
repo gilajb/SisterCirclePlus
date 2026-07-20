@@ -1,10 +1,11 @@
 import json
 import os
-import secrets
 
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from billing.access_control import requires_tier
 
 from .models import SymptomSubmission, User
 from .sanitizers import sanitize_symptom_payload, sanitize_text
@@ -30,8 +31,10 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        from rest_framework_simplejwt.tokens import RefreshToken
-        refresh = RefreshToken.for_user(user)
+        # Mint via CustomTokenObtainPairSerializer.get_token so is_chw/tier land on the
+        # access token's own claims, same as the login path — a raw RefreshToken.for_user()
+        # here would silently omit them.
+        refresh = CustomTokenObtainPairSerializer.get_token(user)
         return Response(
             {
                 "access": str(refresh.access_token),
@@ -42,7 +45,7 @@ class RegisterView(generics.CreateAPIView):
                     "email": user.email,
                     "age": user.age,
                     "location": user.location,
-                    "is_free_tier": user.is_free_tier,
+                    "tier": user.tier,
                     "is_chw": user.is_chw,
                 },
             },
@@ -89,8 +92,10 @@ class SymptomSubmitView(generics.CreateAPIView):
         )
 
 
+@requires_tier("standard", feature="triage_history")
 class SymptomHistoryView(generics.ListAPIView):
-    """GET /api/symptoms/history/ — own submissions only"""
+    """GET /api/symptoms/history/ — own submissions only. Standard tier+ (or admin
+    override) required for the unlimited history log."""
     serializer_class = SymptomSubmissionSerializer
     permission_classes = [permissions.IsAuthenticated]
 
@@ -299,21 +304,6 @@ class CHWAssessmentsView(generics.ListAPIView):
         if not self.request.user.is_chw:
             return SymptomSubmission.objects.none()
         return SymptomSubmission.objects.filter(user=self.request.user)
-
-
-class CHWGenerateCodeView(generics.GenericAPIView):
-    """POST /api/chw/generate-code/ — returns a cryptographically random access code"""
-    permission_classes = [permissions.IsAuthenticated]
-
-    def post(self, request, *args, **kwargs):
-        if not request.user.is_chw:
-            return Response(
-                {"detail": "Only Community Health Workers can generate access codes."},
-                status=status.HTTP_403_FORBIDDEN,
-            )
-        # 6-character uppercase alphanumeric — cryptographically random, never real names
-        code = secrets.token_urlsafe(4)[:6].upper()
-        return Response({"code": code}, status=status.HTTP_200_OK)
 
 
 # ---------------------------------------------------------------------------

@@ -177,7 +177,7 @@ export default function CHWPage() {
   const navigate = useNavigate();
   const [mobile, setMobile] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
-  const [username, setUsername] = useState("CHW");
+  const [username, setUsername] = useState("Partner");
 
   // Form state
   const [age, setAge] = useState("28");
@@ -216,7 +216,7 @@ export default function CHWPage() {
       navigate("/dashboard?error=chw_required", { replace: true });
       return;
     }
-    setUsername(payload.username || "CHW");
+    setUsername(payload.username || "Partner");
     setAuthChecked(true);
   }, [navigate]);
 
@@ -324,8 +324,8 @@ export default function CHWPage() {
         {/* SIDEBAR */}
         <aside style={{ width: "232px", flexShrink: 0, background: C.sidebar, borderRight: `1px solid ${C.border}`, display: "flex", flexDirection: "column", padding: "28px 0", position: "sticky", top: 0, height: "100vh" }}>
           <div style={{ padding: "0 20px 24px", borderBottom: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: "13px", fontWeight: "700", color: C.pink, letterSpacing: "0.5px", fontFamily: "system-ui, sans-serif", marginBottom: "2px" }}>CHW Portal</div>
-            <div style={{ fontSize: "13px", color: C.muted, fontFamily: "system-ui, sans-serif" }}>Community Health Worker</div>
+            <div style={{ fontSize: "13px", fontWeight: "700", color: C.pink, letterSpacing: "0.5px", fontFamily: "system-ui, sans-serif", marginBottom: "2px" }}>Institutional Portal</div>
+            <div style={{ fontSize: "13px", color: C.muted, fontFamily: "system-ui, sans-serif" }}>School / NGO / CHW Program</div>
           </div>
           <div style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: "4px" }}>
             {[
@@ -359,9 +359,9 @@ export default function CHWPage() {
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "20px 32px", borderBottom: `1px solid ${C.border}`, background: C.white, position: "sticky", top: 0, zIndex: 50 }}>
             <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
               <h1 style={{ fontSize: "22px", fontWeight: "800", color: C.charcoal, margin: 0, fontFamily: "Georgia, serif" }}>
-                CHW Dashboard — <span style={{ color: C.pink }}>{displayName}</span>
+                Institutional Dashboard — <span style={{ color: C.pink }}>{displayName}</span>
               </h1>
-              <span style={{ background: C.goldLight, color: C.gold, border: `1px solid ${C.goldBorder}`, fontSize: "12px", fontWeight: "700", padding: "4px 14px", borderRadius: "100px", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", gap: "6px" }}>★ GOLD CHW</span>
+              <span style={{ background: C.goldLight, color: C.gold, border: `1px solid ${C.goldBorder}`, fontSize: "12px", fontWeight: "700", padding: "4px 14px", borderRadius: "100px", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", gap: "6px" }}>★ VERIFIED PARTNER</span>
             </div>
             <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
               <span style={{ fontSize: "20px", cursor: "pointer" }}>🔔</span>
@@ -541,7 +541,7 @@ export default function CHWPage() {
 
         {/* HEADER */}
         <div style={{ marginBottom: "16px" }}>
-          <div style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif", marginBottom: "4px" }}>CHW PORTAL</div>
+          <div style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif", marginBottom: "4px" }}>INSTITUTIONAL PORTAL</div>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <h1 style={{ fontSize: "26px", fontWeight: "800", color: C.charcoal, margin: 0, fontFamily: "Georgia, serif" }}>Active Field View</h1>
             <span style={{ background: C.goldLight, color: "#5A7A3A", fontSize: "12px", fontWeight: "700", padding: "4px 12px", borderRadius: "100px", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", gap: "5px" }}>

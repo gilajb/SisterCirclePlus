@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import SymptomCheck from "./pages/SymptomCheck.jsx";
 import Results from "./pages/Results.jsx";
 import CHW from "./pages/CHW.jsx";
+import Pricing from "./pages/Pricing.jsx";
 
 export default function App() {
   return (
@@ -15,6 +16,7 @@ export default function App() {
       <Route path="/symptom-check" element={<SymptomCheck />} />
       <Route path="/results" element={<Results />} />
       <Route path="/chw" element={<CHW />} />
+      <Route path="/pricing" element={<Pricing />} />
     </Routes>
   );
 }

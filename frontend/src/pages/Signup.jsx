@@ -144,8 +144,6 @@ export default function SignupPage() {
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState("");
 
-  const isFree = age && Number(age) <= 25;
-
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768);
     check();
@@ -165,7 +163,6 @@ export default function SignupPage() {
       email, password, password2: password,
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
-      is_free_tier: Boolean(isFree),
       ...(age && { age: Number(age) }),
       ...(location && { location }),
     };
@@ -211,7 +208,7 @@ export default function SignupPage() {
       email, password, password2: password,
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
-      is_chw: true, is_free_tier: false,
+      is_chw: true,
       ...(age && { age: Number(age) }),
       location,
     };
@@ -252,14 +249,14 @@ export default function SignupPage() {
       {tab === "chw" && (
         <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
           <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "12px", padding: "20px" }}>
-            <div style={{ fontSize: "16px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "8px" }}>CHW Portal Registration</div>
+            <div style={{ fontSize: "16px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "8px" }}>Institutional Portal Registration</div>
             <p style={{ fontSize: "14px", color: "#92720A", fontFamily: "system-ui, sans-serif", margin: 0, lineHeight: "1.6" }}>
-              Register as a Community Health Worker to access clinical diagnostic tools, patient history portals, and access code generation.
+              Register your school, NGO, or CHW program to manage youth access codes, reach your community, and access clinical diagnostic tools.
             </p>
           </div>
-          <TextInput label="Full Name" placeholder="e.g., Nurse Fatima" value={name} onChange={setName} />
-          <TextInput label="Institution / Clinic Name" placeholder="e.g., Kenyatta Community Clinic" value={location} onChange={setLocation} />
-          <TextInput label="Email Address" placeholder="name@clinic.org" type="email" value={email} onChange={setEmail} />
+          <TextInput label="Contact Name" placeholder="e.g., Amina Yusuf" value={name} onChange={setName} />
+          <TextInput label="Institution / School / NGO Name" placeholder="e.g., Kenyatta Girls' Secondary School" value={location} onChange={setLocation} />
+          <TextInput label="Email Address" placeholder="name@organization.org" type="email" value={email} onChange={setEmail} />
           <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
           <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
           <ErrorBanner message={signupError} />
@@ -268,7 +265,7 @@ export default function SignupPage() {
             disabled={signupLoading}
             style={{ background: signupLoading ? C.muted : C.gold, color: C.white, border: "none", borderRadius: "10px", padding: "16px", fontSize: "16px", fontWeight: "700", cursor: signupLoading ? "not-allowed" : "pointer", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
           >
-            {signupLoading ? <><Spinner /> Registering…</> : "Register as CHW →"}
+            {signupLoading ? <><Spinner /> Registering…</> : "Register Institution →"}
           </button>
         </div>
       )}
@@ -279,17 +276,14 @@ export default function SignupPage() {
           <TextInput label="Email Address" placeholder="name@example.com" type="email" value={email} onChange={setEmail} />
           <AgeInput
             label="Age" placeholder="Enter your age" value={age} onChange={setAge}
-            badge={isFree ? "✓ FREE ACCESS" : "FREE ACCESS FOR <25"}
-            hint="SisterCircle+ is free for young women under 25 to ensure clinical support during early reproductive health journeys."
+            hint="We ask for your age to tailor clinical guidance — it doesn't affect your access or pricing."
           />
-          {isFree && (
-            <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontSize: "16px" }}>🎁</span>
-              <span style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600" }}>
-                You qualify for free lifetime access — no payment needed.
-              </span>
-            </div>
-          )}
+          <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
+            <span style={{ fontSize: "16px" }}>🎁</span>
+            <span style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600" }}>
+              Your account starts on our Free plan — no payment needed to begin.
+            </span>
+          </div>
           <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
           <ErrorBanner message={signupError} />
           <button
@@ -323,13 +317,13 @@ export default function SignupPage() {
       <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "14px", padding: "20px", display: "flex", gap: "14px", alignItems: "flex-start" }}>
         <div style={{ width: "40px", height: "40px", borderRadius: "10px", background: C.gold, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0 }}>⊕</div>
         <div>
-          <div style={{ fontSize: "15px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "4px" }}>Health Professional?</div>
-          <div style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", marginBottom: "10px", lineHeight: "1.5" }}>Access clinical diagnostic tools and patient history portals.</div>
+          <div style={{ fontSize: "15px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "4px" }}>Represent a School, NGO, or CHW Program?</div>
+          <div style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", marginBottom: "10px", lineHeight: "1.5" }}>Manage youth access codes and reach your community.</div>
           <span
             onClick={() => setTab("chw")}
             style={{ fontSize: "13px", fontWeight: "700", color: C.gold, fontFamily: "system-ui, sans-serif", cursor: "pointer" }}
           >
-            CHW Portal Registration →
+            Institutional Portal Registration →
           </span>
         </div>
       </div>
@@ -384,7 +378,7 @@ export default function SignupPage() {
                 onClick={() => { setTab(t); setSignupError(""); setLoginError(""); }}
                 style={{ flex: 1, padding: "9px 0", borderRadius: "100px", border: "none", background: tab === t ? C.progressFill : "transparent", color: tab === t ? C.white : C.muted, fontSize: "14px", fontWeight: tab === t ? "700" : "500", cursor: "pointer", fontFamily: "system-ui, sans-serif", transition: "all 0.2s" }}
               >
-                {t === "signup" ? "Sign Up" : t === "login" ? "Log In" : "CHW"}
+                {t === "signup" ? "Sign Up" : t === "login" ? "Log In" : "Institution"}
               </button>
             ))}
           </div>
@@ -397,14 +391,12 @@ export default function SignupPage() {
                 <AgeInput label="Age" placeholder="28" value={age} onChange={setAge} />
                 <TextInput label="Location" placeholder="Lagos, NG" value={location} onChange={setLocation} />
               </div>
-              {isFree && (
-                <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
-                  <span style={{ fontSize: "16px" }}>🎁</span>
-                  <span style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600" }}>
-                    You qualify for free lifetime access — no payment needed.
-                  </span>
-                </div>
-              )}
+              <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "16px" }}>🎁</span>
+                <span style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600" }}>
+                  Your account starts on our Free plan — no payment needed to begin.
+                </span>
+              </div>
               <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
               <ErrorBanner message={signupError} />
               <button
@@ -438,14 +430,14 @@ export default function SignupPage() {
           {tab === "chw" && (
             <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "12px", padding: "20px" }}>
-                <div style={{ fontSize: "16px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "8px" }}>CHW Portal Registration</div>
+                <div style={{ fontSize: "16px", fontWeight: "700", color: "#92720A", fontFamily: "Georgia, serif", marginBottom: "8px" }}>Institutional Portal Registration</div>
                 <p style={{ fontSize: "14px", color: "#92720A", fontFamily: "system-ui, sans-serif", margin: 0, lineHeight: "1.6" }}>
-                  Register as a Community Health Worker to access clinical diagnostic tools, patient history portals, and access code generation.
+                  Register your school, NGO, or CHW program to manage youth access codes, reach your community, and access clinical diagnostic tools.
                 </p>
               </div>
-              <TextInput label="Full Name" placeholder="e.g., Nurse Fatima" value={name} onChange={setName} />
-              <TextInput label="Institution / Clinic Name" placeholder="e.g., Kenyatta Community Clinic" value={location} onChange={setLocation} />
-              <TextInput label="Email Address" placeholder="name@clinic.org" type="email" value={email} onChange={setEmail} />
+              <TextInput label="Contact Name" placeholder="e.g., Amina Yusuf" value={name} onChange={setName} />
+              <TextInput label="Institution / School / NGO Name" placeholder="e.g., Kenyatta Girls' Secondary School" value={location} onChange={setLocation} />
+              <TextInput label="Email Address" placeholder="name@organization.org" type="email" value={email} onChange={setEmail} />
               <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
               <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
               <ErrorBanner message={signupError} />
@@ -454,7 +446,7 @@ export default function SignupPage() {
                 disabled={signupLoading}
                 style={{ background: signupLoading ? C.muted : C.gold, color: C.white, border: "none", borderRadius: "10px", padding: "16px", fontSize: "16px", fontWeight: "700", cursor: signupLoading ? "not-allowed" : "pointer", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}
               >
-                {signupLoading ? <><Spinner /> Registering…</> : "Register as CHW →"}
+                {signupLoading ? <><Spinner /> Registering…</> : "Register Institution →"}
               </button>
             </div>
           )}
@@ -462,7 +454,7 @@ export default function SignupPage() {
           <div style={{ borderTop: `1px solid ${C.border}`, paddingTop: "24px", display: "flex", alignItems: "center", gap: "14px" }}>
             <div style={{ width: "36px", height: "36px", borderRadius: "8px", background: C.goldLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", flexShrink: 0 }}>⊕</div>
             <div style={{ flex: 1 }}>
-              <span style={{ fontSize: "14px", color: C.body, fontFamily: "system-ui, sans-serif" }}>Are you a Community Health Worker?</span>
+              <span style={{ fontSize: "14px", color: C.body, fontFamily: "system-ui, sans-serif" }}>Represent a School, NGO, or CHW Program?</span>
             </div>
             <span
               onClick={() => setTab("chw")}

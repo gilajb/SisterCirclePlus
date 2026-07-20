@@ -1,8 +1,9 @@
 from django.urls import path
 
+from billing.views import CHWGenerateCodeView
+
 from .views import (
     CHWAssessmentsView,
-    CHWGenerateCodeView,
     LoginView,
     RefreshView,
     RegisterView,

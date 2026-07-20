@@ -28,11 +28,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             "age",
             "location",
             "is_chw",
-            "is_free_tier",
         )
         extra_kwargs = {
             "email": {"required": True},
         }
+
+    # `tier` is intentionally NOT in Meta.fields — it is never client-writable. Every new
+    # user is created at the model default (`free`) and can only move to `under_18` via
+    # CHW-code redemption or to `standard`/`premium` via a successful Paystack payment.
 
     def validate(self, attrs):
         if attrs["password"] != attrs["password2"]:
@@ -42,12 +45,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop("password2")
         password = validated_data.pop("password")
-        
-        # Auto-set is_free_tier based on age — don't trust frontend
-        age = validated_data.get("age")
-        if age is not None and age <= 25:
-            validated_data["is_free_tier"] = True
-        
+
         user = User(**validated_data)
         user.set_password(password)
         user.save()
@@ -55,7 +53,16 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
-    """Adds basic user info to the login response."""
+    """Adds basic user info to the login response, and bakes is_chw/tier into the JWT
+    access token itself — the frontend's decodePayload() reads claims directly off the
+    token, not the response body, so these must live on the token to be usable there."""
+
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        token["is_chw"] = user.is_chw
+        token["tier"] = user.tier
+        return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
@@ -65,7 +72,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             "email": self.user.email,
             "age": self.user.age,
             "location": self.user.location,
-            "is_free_tier": self.user.is_free_tier,
+            "tier": self.user.tier,
             "is_chw": self.user.is_chw,
         }
         return data

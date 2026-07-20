@@ -15,6 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ["SECRET_KEY"]   # hard fail if missing
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY", "")
+PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY", "")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
@@ -34,6 +36,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     "corsheaders",
     "api",
+    "billing",
 ]
 
 MIDDLEWARE = [

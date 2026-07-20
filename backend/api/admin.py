@@ -6,12 +6,22 @@ from .models import SymptomSubmission, User
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ("username", "email", "age", "location", "is_free_tier", "is_chw", "is_staff")
-    list_filter = ("is_free_tier", "is_chw", "is_staff", "is_active")
+    list_display = ("username", "email", "age", "location", "tier", "is_chw", "is_admin_override", "is_staff")
+    list_filter = ("tier", "is_chw", "is_admin_override", "is_settlement_verified", "is_staff", "is_active")
     fieldsets = UserAdmin.fieldsets + (
         (
             "SisterCircle+ Profile",
-            {"fields": ("age", "location", "is_free_tier", "is_chw")},
+            {
+                "fields": (
+                    "age",
+                    "location",
+                    "tier",
+                    "institutional_license",
+                    "is_chw",
+                    "is_settlement_verified",
+                    "is_admin_override",
+                )
+            },
         ),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (

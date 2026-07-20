@@ -3,15 +3,45 @@ from django.db import models
 
 
 class User(AbstractUser):
+    TIER_FREE = "free"
+    TIER_UNDER_18 = "under_18"
+    TIER_STANDARD = "standard"
+    TIER_PREMIUM = "premium"
+    TIER_CHOICES = [
+        (TIER_FREE, "Free"),
+        (TIER_UNDER_18, "Under-18 (discounted)"),
+        (TIER_STANDARD, "Standard"),
+        (TIER_PREMIUM, "Premium"),
+    ]
+
     age = models.IntegerField(null=True, blank=True)
     location = models.CharField(max_length=255, blank=True)
-    is_free_tier = models.BooleanField(default=False)
     is_chw = models.BooleanField(default=False)
 
-    def save(self, *args, **kwargs):
-        if self.age is not None:
-            self.is_free_tier = self.age <= 25
-        super().save(*args, **kwargs)
+    # Pricing tier — server-derived only. Never writable from RegisterSerializer or any
+    # other public-facing serializer. Only two paths may change it: successful Paystack
+    # payment (-> standard/premium) or CHW/institutional code redemption (-> under_18).
+    tier = models.CharField(max_length=20, choices=TIER_CHOICES, default=TIER_FREE)
+
+    # Nullable: set for CHW users tied to an institution's youth program (who generate
+    # codes on its behalf) and for under_18 users who redeemed one of those codes.
+    institutional_license = models.ForeignKey(
+        "billing.InstitutionalLicense",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="members",
+    )
+
+    # Privileged bypass flag — grants full Premium-equivalent access with no active
+    # subscription and no payment provider call. Settable only via Django admin or the
+    # seed_admin management command; deliberately absent from every public serializer.
+    is_admin_override = models.BooleanField(default=False)
+
+    # Placeholder for the "verified low-income-settlement" free-tier exemption. Not yet
+    # enforced anywhere — the verification process itself hasn't been defined — but the
+    # field exists so that flow can be wired in without another schema change.
+    is_settlement_verified = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
