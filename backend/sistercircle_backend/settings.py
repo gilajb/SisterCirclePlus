@@ -79,6 +79,29 @@ DATABASES = {
     "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
 }
 
+# This Postgres instance may be shared with an unrelated project (Render's free tier
+# allows only one DB per account). When DB_SCHEMA is set, ALL of this project's tables —
+# including Django's own framework tables (django_migrations, auth_permission,
+# django_content_type, django_session, ...) — are isolated into a dedicated schema
+# instead of colliding with whatever else lives in `public`. Run
+# `python manage.py setup_schema` once, BEFORE the first `migrate`, to create it — the
+# schema must already exist before Django connects, otherwise unqualified table creation
+# silently falls back to `public`. Leave DB_SCHEMA unset for a database this project owns
+# outright (e.g. local dev) — behavior is then unchanged, tables just use `public`.
+#
+# Deliberately NOT falling back to `,public` in search_path: Postgres falls through to the
+# next schema in search_path for lookups (not just creation) when a table isn't found in
+# the first one — so with a `public` fallback, Django would silently read the OTHER
+# project's django_migrations table whenever this project's own copy doesn't exist yet
+# (e.g. before the very first migrate), concluding "nothing to apply" instead of actually
+# creating this project's tables. Confirmed by testing locally before this ever touched
+# the shared production database. This project uses no Postgres extensions that would
+# need a `public` fallback (no UUID/pgcrypto usage), so omitting it is safe.
+DB_SCHEMA = os.environ.get("DB_SCHEMA", "")
+if DB_SCHEMA and DATABASES["default"].get("ENGINE") == "django.db.backends.postgresql":
+    DATABASES["default"].setdefault("OPTIONS", {})
+    DATABASES["default"]["OPTIONS"]["options"] = f"-c search_path={DB_SCHEMA}"
+
 # ---------------------------------------------------------------------------
 # Custom user model
 # ---------------------------------------------------------------------------

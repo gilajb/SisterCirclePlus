@@ -142,6 +142,7 @@ SECRET_KEY=your-long-random-secret-key
 DEBUG=False
 ALLOWED_HOSTS=your-render-app.onrender.com
 DATABASE_URL=postgres://user:password@host:5432/sistercircle
+DB_SCHEMA=sistercircle                        # only needed if the DB above is shared with another project
 CORS_ALLOWED_ORIGINS=https://your-app.vercel.app
 ANTHROPIC_API_KEY=sk-ant-your-key-here
 REFRESH_TOKEN_LIFETIME_DAYS=7
@@ -174,10 +175,17 @@ See [SECURITY.md](./SECURITY.md) for full documentation on:
 ### Backend → Render
 
 1. Create a new **Web Service** on [Render](https://render.com)
-2. Build command: `pip install -r requirements.txt && python manage.py migrate`
+2. Build command: `pip install -r requirements.txt && python manage.py setup_schema && python manage.py migrate`
 3. Start command: `gunicorn sistercircle_backend.wsgi:application`
 4. Add all environment variables from `.env.example`
 5. Add `gunicorn` to `requirements.txt`
+
+> If this Postgres instance is shared with another, unrelated project (e.g. only one free
+> DB is available on your Render plan), set `DB_SCHEMA` to a dedicated schema name (e.g.
+> `sistercircle`) so this project's tables — including Django's own framework tables —
+> never collide with the other project's. `setup_schema` creates that schema before
+> `migrate` runs; it's a no-op if `DB_SCHEMA` is unset, so a database this project owns
+> outright needs no changes.
 
 ### Frontend → Vercel
 
