@@ -79,7 +79,6 @@ export default function LandingPage() {
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
               textDecoration: "none",
             }}>Pricing</Link>
-            <span style={{ fontSize: "20px", cursor: "pointer" }}>🔔</span>
             <Link to="/signup" style={{
               background: C.pink, color: C.white, textDecoration: "none",
               borderRadius: "8px", padding: "10px 20px",
@@ -89,7 +88,6 @@ export default function LandingPage() {
           </div>
         ) : (
           <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-            <span style={{ fontSize: "20px" }}>🔔</span>
             <Link to="/signup" style={{
               background: C.pink, color: C.white, textDecoration: "none",
               borderRadius: "8px", padding: "8px 14px",
