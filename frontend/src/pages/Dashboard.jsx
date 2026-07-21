@@ -280,7 +280,13 @@ export default function DashboardPage() {
   const [mobile, setMobile] = useState(false);
   const [loading, setLoading] = useState(true);
   const [submissions, setSubmissions] = useState([]);
+  const [totalCount, setTotalCount] = useState(0);
   const [username, setUsername] = useState("");
+  const [portalLinks, setPortalLinks] = useState({ chw: false, doctor: false });
+  const [emailVerified, setEmailVerified] = useState(null); // null = unknown yet
+  const [resendState, setResendState] = useState("idle"); // idle | sending | sent | error
+  const [guardianConsentStatus, setGuardianConsentStatus] = useState(null);
+  const [historyLimited, setHistoryLimited] = useState(false); // true = free-tier teaser, not full history
 
   // Auth guard + data fetch
   useEffect(() => {
@@ -290,11 +296,53 @@ export default function DashboardPage() {
     const payload = decodePayload();
     setUsername(payload?.username || payload?.name || "");
 
+    // /api/symptoms/history/ requires Standard tier+ (full history is a paid feature).
+    // A free-tier user's request 403s — fall back to /api/symptoms/latest/, an ungated
+    // teaser endpoint that returns just the single most recent submission plus the true
+    // total count, so the Dashboard shows something real instead of a false "no
+    // analyses yet" empty state for every free user regardless of actual history.
     api.get("/api/symptoms/history/")
-      .then(res => setSubmissions(res.data))
-      .catch(() => {}) // 401 handled by axios interceptor → redirect to /signup
+      .then(res => {
+        setSubmissions(res.data.results);
+        setTotalCount(res.data.count);
+      })
+      .catch(err => {
+        if (err.response?.status !== 403) return; // 401 handled by axios interceptor
+        return api.get("/api/symptoms/latest/").then(res => {
+          setSubmissions(res.data.latest ? [res.data.latest] : []);
+          setTotalCount(res.data.total_count);
+          setHistoryLimited(true);
+        });
+      })
+      .catch(() => {})
       .finally(() => setLoading(false));
+
+    // email_verified can flip true without a new login, so it can't be read off the JWT
+    // (that would go stale until the token refreshes) — fetch it fresh instead.
+    api.get("/api/auth/me/")
+      .then(res => {
+        setEmailVerified(!!res.data?.email_verified);
+        setGuardianConsentStatus(res.data?.guardian_consent_status || null);
+      })
+      .catch(() => {});
+
+    // Quick-access links back into role-gated portals — a returning CHW/doctor otherwise
+    // has no way back in except typing the URL, since login always lands on /dashboard.
+    const isChw = !!payload?.is_chw;
+    api.get("/api/billing/doctor-subscription/")
+      .then(res => setPortalLinks({ chw: isChw, doctor: res.data?.has_subscription && res.data?.status === "active" }))
+      .catch(() => setPortalLinks({ chw: isChw, doctor: false }));
   }, [navigate]);
+
+  async function handleResendVerification() {
+    setResendState("sending");
+    try {
+      await api.post("/api/auth/verify-email/request/");
+      setResendState("sent");
+    } catch {
+      setResendState("error");
+    }
+  }
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768);
@@ -304,7 +352,7 @@ export default function DashboardPage() {
   }, []);
 
   // ── Derived stats ─────────────────────────────────────────────────────────
-  const total = submissions.length;
+  const total = totalCount;
   const latest = submissions[0] ?? null; // history endpoint returns newest first
   const lastRiskLabel = latest ? riskTierToLabel(latest.risk_tier) : "—";
   const lastCondition = latest ? getFirstConditionName(latest) : "—";
@@ -345,7 +393,9 @@ export default function DashboardPage() {
             <Link to="/symptom-check" style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "400" }}>Symptom Check</Link>
             <span style={{ fontSize: "15px", color: C.charcoal, fontFamily: "system-ui, sans-serif", cursor: "pointer" }}>Resources</span>
             <span style={{ fontSize: "20px" }}>🔔</span>
-            <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #6B8F71, #4A7A8A)" }} />
+            <Link to="/settings" style={{ textDecoration: "none" }}>
+              <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "linear-gradient(135deg, #6B8F71, #4A7A8A)" }} />
+            </Link>
           </div>
         </nav>
       ) : (
@@ -361,6 +411,58 @@ export default function DashboardPage() {
             <div style={{ width: "32px", height: "32px", borderRadius: "50%", background: "#C4A882", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" }}>📱</div>
           </div>
         </nav>
+      )}
+
+      {/* EMAIL VERIFICATION NUDGE — non-blocking; core triage access never requires this */}
+      {emailVerified === false && (
+        <div style={{
+          background: "#FEF2F2", borderBottom: "1px solid #FECACA",
+          padding: mobile ? "10px 20px" : "10px 48px",
+          display: "flex", gap: "12px", alignItems: "center", flexWrap: "wrap",
+        }}>
+          <span style={{ fontSize: "12px", color: "#B91C1C", fontFamily: "system-ui, sans-serif" }}>
+            Please verify your email — check your inbox for a link.
+          </span>
+          {resendState === "sent" ? (
+            <span style={{ fontSize: "12px", color: "#B91C1C", fontFamily: "system-ui, sans-serif", fontWeight: "700" }}>Sent ✓</span>
+          ) : (
+            <span
+              onClick={resendState === "sending" ? undefined : handleResendVerification}
+              style={{ fontSize: "12px", fontWeight: "700", color: "#B91C1C", fontFamily: "system-ui, sans-serif", textDecoration: "underline", cursor: resendState === "sending" ? "default" : "pointer" }}
+            >
+              {resendState === "sending" ? "Sending…" : resendState === "error" ? "Couldn't send — retry" : "Resend email"}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* GUARDIAN CONSENT NUDGE — informational only; triage access is never gated on this */}
+      {guardianConsentStatus === "pending" && (
+        <div style={{
+          background: "#F5EDD6", borderBottom: "1px solid #E8D5A0",
+          padding: mobile ? "10px 20px" : "10px 48px",
+        }}>
+          <span style={{ fontSize: "12px", color: "#92720A", fontFamily: "system-ui, sans-serif" }}>
+            We've asked your parent/guardian to confirm this account — you already have full access, no need to wait.
+          </span>
+        </div>
+      )}
+
+      {/* PORTAL QUICK ACCESS — only shown to CHW users and doctors with an active subscription */}
+      {(portalLinks.chw || portalLinks.doctor) && (
+        <div style={{
+          background: C.goldLight, borderBottom: `1px solid ${C.goldBorder}`,
+          padding: mobile ? "10px 20px" : "10px 48px",
+          display: "flex", gap: "16px", alignItems: "center", flexWrap: "wrap",
+        }}>
+          <span style={{ fontSize: "12px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600" }}>Quick access:</span>
+          {portalLinks.chw && (
+            <Link to="/chw" style={{ fontSize: "13px", fontWeight: "700", color: "#92720A", fontFamily: "system-ui, sans-serif", textDecoration: "underline" }}>Institutional Portal →</Link>
+          )}
+          {portalLinks.doctor && (
+            <Link to="/doctor-portal" style={{ fontSize: "13px", fontWeight: "700", color: "#92720A", fontFamily: "system-ui, sans-serif", textDecoration: "underline" }}>Doctor Portal →</Link>
+          )}
+        </div>
       )}
 
       {/* LOADING SKELETON */}
@@ -535,10 +637,10 @@ export default function DashboardPage() {
                       const riskLabel = riskTierToLabel(s.risk_tier);
                       const condName = getFirstConditionName(s);
                       return (
-                        <div key={s.id} style={{
+                        <Link key={s.id} to={`/results?id=${s.id}`} style={{
                           background: C.white, borderRadius: "10px", padding: "14px 16px",
                           display: "flex", alignItems: "center", gap: "12px",
-                          border: `1px solid ${C.border}`,
+                          border: `1px solid ${C.border}`, textDecoration: "none",
                         }}>
                           <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: dotColorForTier(s.risk_tier), flexShrink: 0 }} />
                           <div style={{ flex: 1 }}>
@@ -548,10 +650,20 @@ export default function DashboardPage() {
                             <div style={{ fontSize: "12px", color: C.muted, fontFamily: "system-ui, sans-serif" }}>{formatDate(s.created_at)}</div>
                           </div>
                           <RiskBadge level={riskLabel} />
-                        </div>
+                        </Link>
                       );
                     })}
                   </div>
+                  {historyLimited && totalCount > submissions.length && (
+                    <div style={{ marginTop: "12px", padding: "12px 14px", background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px" }}>
+                      <div style={{ fontSize: "12px", color: "#92720A", fontFamily: "system-ui, sans-serif", lineHeight: "1.5", marginBottom: "8px" }}>
+                        You have {totalCount} saved analyses. Upgrade to Standard to see your full history.
+                      </div>
+                      <Link to="/pricing" style={{ fontSize: "12px", fontWeight: "700", color: "#92720A", fontFamily: "system-ui, sans-serif", textDecoration: "underline" }}>
+                        View Plans →
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -597,14 +709,27 @@ export default function DashboardPage() {
                               {desc.length > 100 ? desc.slice(0, 100) + "…" : desc}
                             </div>
                           )}
-                          <span style={{ fontSize: "13px", color: C.pink, fontFamily: "system-ui, sans-serif", cursor: "pointer", fontWeight: "500" }}>
+                          <Link to={`/results?id=${s.id}`} style={{ fontSize: "13px", color: C.pink, fontFamily: "system-ui, sans-serif", fontWeight: "500", textDecoration: "none" }}>
                             View Full Report ›
-                          </span>
+                          </Link>
                         </div>
                       </div>
                     );
                   })}
                 </div>
+                {historyLimited && totalCount > submissions.length && (
+                  <div style={{ marginTop: "16px", padding: "14px 16px", background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px" }}>
+                    <div style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600", marginBottom: "6px" }}>
+                      Showing your most recent analysis only
+                    </div>
+                    <div style={{ fontSize: "12px", color: "#92720A", fontFamily: "system-ui, sans-serif", lineHeight: "1.5", marginBottom: "10px" }}>
+                      You have {totalCount} saved analyses. Upgrade to Standard to see your full history and trend chart.
+                    </div>
+                    <Link to="/pricing" style={{ fontSize: "12px", fontWeight: "700", color: "#92720A", fontFamily: "system-ui, sans-serif", textDecoration: "underline" }}>
+                      View Plans →
+                    </Link>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -626,9 +751,13 @@ export default function DashboardPage() {
             ].map(col => (
               <div key={col.label} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <span style={{ fontSize: "12px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>{col.label}</span>
-                {col.links.map(l => (
-                  <span key={l} style={{ fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>{l}</span>
-                ))}
+                {col.links.map(l => {
+                  const href = l === "Privacy Policy" ? "/privacy" : l === "Terms of Service" ? "/terms" : null;
+                  const style = { fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "none" };
+                  return href
+                    ? <Link key={l} to={href} style={style}>{l}</Link>
+                    : <span key={l} style={style}>{l}</span>;
+                })}
               </div>
             ))}
           </div>
@@ -664,7 +793,7 @@ export default function DashboardPage() {
               { icon: "⊞", label: "Home",    href: "/" },
               { icon: "🩺", label: "Triage",  href: "/symptom-check" },
               { icon: "💬", label: "Support", href: "#" },
-              { icon: "👤", label: "Account", href: "/signup" },
+              { icon: "👤", label: "Account", href: "/settings" },
             ].map((item, i) => (
               <Link key={item.label} to={item.href} style={{ textDecoration: "none" }}>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", cursor: "pointer" }}>

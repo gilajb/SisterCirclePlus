@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import api from "@/lib/axios";
 import { setToken } from "@/lib/auth";
 
@@ -123,6 +123,40 @@ function Spinner() {
   );
 }
 
+function isMinorAge(age) {
+  return age !== "" && Number(age) < 16;
+}
+
+function GuardianEmailInput({ value, onChange }) {
+  return (
+    <TextInput
+      label="Parent / Guardian Email"
+      placeholder="parent@example.com"
+      type="email"
+      value={value}
+      onChange={onChange}
+      hint="Required for users under 16 — we'll email them to request their consent. This never delays your own access to triage support."
+    />
+  );
+}
+
+function TermsCheckbox({ checked, onChange }) {
+  return (
+    <label style={{ display: "flex", alignItems: "flex-start", gap: "10px", cursor: "pointer" }}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={e => onChange(e.target.checked)}
+        style={{ marginTop: "3px", width: "16px", height: "16px", flexShrink: 0, cursor: "pointer" }}
+      />
+      <span style={{ fontSize: "13px", color: C.body, fontFamily: "system-ui, sans-serif", lineHeight: "1.5" }}>
+        I agree to the <Link to="/terms" target="_blank" style={{ color: C.mauve, fontWeight: "600" }}>Terms of Service</Link> and{" "}
+        <Link to="/privacy" target="_blank" style={{ color: C.mauve, fontWeight: "600" }}>Privacy Policy</Link>.
+      </span>
+    </label>
+  );
+}
+
 // ---------------------------------------------------------------------------
 
 export default function SignupPage() {
@@ -136,6 +170,8 @@ export default function SignupPage() {
   const [age, setAge] = useState("");
   const [location, setLocation] = useState("");
   const [password, setPassword] = useState("");
+  const [guardianEmail, setGuardianEmail] = useState("");
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [signupLoading, setSignupLoading] = useState(false);
   const [signupError, setSignupError] = useState("");
 
@@ -153,8 +189,16 @@ export default function SignupPage() {
 
   async function handleSignup() {
     setSignupError("");
-    if (!name || !email || !password) {
-      setSignupError("Please fill in your name, email, and password.");
+    if (!name || !email || !password || !age) {
+      setSignupError("Please fill in your name, email, age, and password.");
+      return;
+    }
+    if (!termsAccepted) {
+      setSignupError("Please agree to the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
+    if (isMinorAge(age) && !guardianEmail) {
+      setSignupError("A parent or guardian email is required for users under 16.");
       return;
     }
     const nameParts = name.trim().split(" ");
@@ -163,8 +207,10 @@ export default function SignupPage() {
       email, password, password2: password,
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
-      ...(age && { age: Number(age) }),
+      age: Number(age),
+      terms_accepted: termsAccepted,
       ...(location && { location }),
+      ...(isMinorAge(age) && { guardian_email: guardianEmail }),
     };
     setSignupLoading(true);
     try {
@@ -201,7 +247,15 @@ export default function SignupPage() {
 
   async function handleCHWSignup() {
     setSignupError("");
-    if (!name || !email || !password) { setSignupError("Please fill in all fields."); return; }
+    if (!name || !email || !password || !age) { setSignupError("Please fill in all fields."); return; }
+    if (!termsAccepted) {
+      setSignupError("Please agree to the Terms of Service and Privacy Policy to continue.");
+      return;
+    }
+    if (isMinorAge(age) && !guardianEmail) {
+      setSignupError("A parent or guardian email is required for users under 16.");
+      return;
+    }
     const nameParts = name.trim().split(" ");
     const payload = {
       username: email.split("@")[0],
@@ -209,8 +263,10 @@ export default function SignupPage() {
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
       is_chw: true,
-      ...(age && { age: Number(age) }),
+      age: Number(age),
+      terms_accepted: termsAccepted,
       location,
+      ...(isMinorAge(age) && { guardian_email: guardianEmail }),
     };
     setSignupLoading(true);
     try {
@@ -258,7 +314,9 @@ export default function SignupPage() {
           <TextInput label="Institution / School / NGO Name" placeholder="e.g., Kenyatta Girls' Secondary School" value={location} onChange={setLocation} />
           <TextInput label="Email Address" placeholder="name@organization.org" type="email" value={email} onChange={setEmail} />
           <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
+          {isMinorAge(age) && <GuardianEmailInput value={guardianEmail} onChange={setGuardianEmail} />}
           <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
+          <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} />
           <ErrorBanner message={signupError} />
           <button
             onClick={handleCHWSignup}
@@ -278,6 +336,7 @@ export default function SignupPage() {
             label="Age" placeholder="Enter your age" value={age} onChange={setAge}
             hint="We ask for your age to tailor clinical guidance — it doesn't affect your access or pricing."
           />
+          {isMinorAge(age) && <GuardianEmailInput value={guardianEmail} onChange={setGuardianEmail} />}
           <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
             <span style={{ fontSize: "16px" }}>🎁</span>
             <span style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600" }}>
@@ -285,6 +344,7 @@ export default function SignupPage() {
             </span>
           </div>
           <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
+          <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} />
           <ErrorBanner message={signupError} />
           <button
             onClick={handleSignup}
@@ -301,7 +361,7 @@ export default function SignupPage() {
           <TextInput label="Email Address" placeholder="grace@example.com" type="email" value={loginEmail} onChange={setLoginEmail} />
           <PasswordInput label="Password" placeholder="••••••••" value={loginPassword} onChange={setLoginPassword} />
           <div style={{ textAlign: "right" }}>
-            <span style={{ fontSize: "13px", color: C.pink, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontWeight: "500" }}>Forgot password?</span>
+            <Link to="/reset-password" style={{ fontSize: "13px", color: C.pink, fontFamily: "system-ui, sans-serif", fontWeight: "500", textDecoration: "none" }}>Forgot password?</Link>
           </div>
           <ErrorBanner message={loginError} />
           <button
@@ -391,6 +451,7 @@ export default function SignupPage() {
                 <AgeInput label="Age" placeholder="28" value={age} onChange={setAge} />
                 <TextInput label="Location" placeholder="Lagos, NG" value={location} onChange={setLocation} />
               </div>
+              {isMinorAge(age) && <GuardianEmailInput value={guardianEmail} onChange={setGuardianEmail} />}
               <div style={{ background: C.goldLight, border: `1px solid ${C.goldBorder}`, borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
                 <span style={{ fontSize: "16px" }}>🎁</span>
                 <span style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif", fontWeight: "600" }}>
@@ -398,6 +459,7 @@ export default function SignupPage() {
                 </span>
               </div>
               <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
+              <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} />
               <ErrorBanner message={signupError} />
               <button
                 onClick={handleSignup}
@@ -414,7 +476,7 @@ export default function SignupPage() {
               <TextInput label="Email Address" placeholder="grace@example.com" type="email" value={loginEmail} onChange={setLoginEmail} />
               <PasswordInput label="Password" placeholder="••••••••" value={loginPassword} onChange={setLoginPassword} />
               <div style={{ textAlign: "right" }}>
-                <span style={{ fontSize: "13px", color: C.pink, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontWeight: "500" }}>Forgot password?</span>
+                <Link to="/reset-password" style={{ fontSize: "13px", color: C.pink, fontFamily: "system-ui, sans-serif", fontWeight: "500", textDecoration: "none" }}>Forgot password?</Link>
               </div>
               <ErrorBanner message={loginError} />
               <button
@@ -439,7 +501,9 @@ export default function SignupPage() {
               <TextInput label="Institution / School / NGO Name" placeholder="e.g., Kenyatta Girls' Secondary School" value={location} onChange={setLocation} />
               <TextInput label="Email Address" placeholder="name@organization.org" type="email" value={email} onChange={setEmail} />
               <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
+              {isMinorAge(age) && <GuardianEmailInput value={guardianEmail} onChange={setGuardianEmail} />}
               <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
+              <TermsCheckbox checked={termsAccepted} onChange={setTermsAccepted} />
               <ErrorBanner message={signupError} />
               <button
                 onClick={handleCHWSignup}

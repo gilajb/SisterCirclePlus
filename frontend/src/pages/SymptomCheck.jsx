@@ -617,15 +617,23 @@ export default function SymptomCheckPage() {
             <div style={{ display: "flex", gap: "48px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <span style={{ fontSize: "12px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>Company</span>
-                {["Mission", "Privacy Policy"].map(l => (
-                  <span key={l} style={{ fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>{l}</span>
-                ))}
+                {["Mission", "Privacy Policy"].map(l => {
+                  const href = l === "Privacy Policy" ? "/privacy" : null;
+                  const style = { fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "none" };
+                  return href
+                    ? <Link key={l} to={href} style={style}>{l}</Link>
+                    : <span key={l} style={style}>{l}</span>;
+                })}
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 <span style={{ fontSize: "12px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>Support</span>
-                {["Terms of Service", "Disclaimer"].map(l => (
-                  <span key={l} style={{ fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>{l}</span>
-                ))}
+                {["Terms of Service", "Disclaimer"].map(l => {
+                  const href = l === "Terms of Service" ? "/terms" : null;
+                  const style = { fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "none" };
+                  return href
+                    ? <Link key={l} to={href} style={style}>{l}</Link>
+                    : <span key={l} style={style}>{l}</span>;
+                })}
               </div>
             </div>
           </div>

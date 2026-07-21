@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import api from "@/lib/axios";
 import { requireAuth, decodePayload, removeToken } from "@/lib/auth";
 
@@ -197,6 +197,7 @@ export default function CHWPage() {
 
   // Assessments table
   const [assessments, setAssessments] = useState([]);
+  const [assessmentsTotal, setAssessmentsTotal] = useState(0);
   const [assessmentsLoading, setAssessmentsLoading] = useState(true);
 
   // Access code modal
@@ -228,15 +229,20 @@ export default function CHWPage() {
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  // Load assessments
+  // Load assessments. Both endpoints are paginated (page_size=20) — the table only ever
+  // shows the 10 most recent (see .slice(0, 10) below), so page 1's `results` (newest
+  // first) always covers it; `count` carries the true all-time total.
   useEffect(() => {
     if (!authChecked) return;
     api.get("/api/chw/assessments/")
-      .then(res => setAssessments(res.data))
+      .then(res => {
+        setAssessments(res.data.results);
+        setAssessmentsTotal(res.data.count);
+      })
       .catch(() => {
         // Fallback to history endpoint if CHW-specific one isn't implemented yet
         return api.get("/api/symptoms/history/").then(res => {
-          setAssessments(res.data.map(s => ({
+          setAssessments(res.data.results.map(s => ({
             ref: `SC-${s.id}`,
             status: riskTierToBadge(s.risk_tier),
             summary: (s.symptoms ?? []).slice(0, 2).join(", ") || s.complaint || "Symptom Analysis",
@@ -244,6 +250,7 @@ export default function CHWPage() {
             action: "Open Case",
             created_at: s.created_at,
           })));
+          setAssessmentsTotal(res.data.count);
         });
       })
       .finally(() => setAssessmentsLoading(false));
@@ -284,6 +291,7 @@ export default function CHWPage() {
         created_at: new Date().toISOString(),
       };
       setAssessments(prev => [newRow, ...prev]);
+      setAssessmentsTotal(t => t + 1);
       if (isMobile) { setMobileAge(""); setMobileComplaint(""); setNewIntakeOpen(false); }
     } catch (err) {
       setErr(flattenErrors(err));
@@ -300,10 +308,12 @@ export default function CHWPage() {
     setCodeLoading(true);
     try {
       const { data } = await api.post("/api/chw/generate-code/");
-      setCodeModal(data.code ?? data.access_code ?? String(Math.random()).slice(2, 8).toUpperCase());
-    } catch {
-      // Graceful fallback: generate a local code so CHW isn't blocked
-      setCodeModal(Math.random().toString(36).slice(2, 8).toUpperCase());
+      setCodeModal(data.code);
+    } catch (err) {
+      // A locally-fabricated fallback code used to be generated here on any failure —
+      // it was never a real CHWCode row, so patients redeeming it would always fail.
+      // Surface the real reason (unverified email, no institutional license, etc.) instead.
+      setCodeError(err.response?.data?.detail || "Couldn't generate a code. Please try again.");
     } finally {
       setCodeLoading(false);
     }
@@ -329,15 +339,22 @@ export default function CHWPage() {
           </div>
           <div style={{ flex: 1, padding: "16px 12px", display: "flex", flexDirection: "column", gap: "4px" }}>
             {[
-              { icon: "👥", label: "Patient List", active: true },
-              { icon: "🕐", label: "History", active: false },
-              { icon: "📊", label: "New Analysis", active: false },
-              { icon: "⚙",  label: "Settings",    active: false },
-            ].map(item => (
-              <div key={item.label} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", borderRadius: "10px", background: item.active ? C.sidebarActive : "transparent", cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: "14px", fontWeight: item.active ? "700" : "400", color: item.active ? C.charcoal : C.body }}>
-                <span>{item.icon}</span>{item.label}
-              </div>
-            ))}
+              { icon: "👥", label: "Patient List", active: true, href: null },
+              { icon: "🕐", label: "History", active: false, href: null },
+              { icon: "📊", label: "New Analysis", active: false, href: null },
+              { icon: "⚙",  label: "Settings",    active: false, href: "/settings" },
+            ].map(item => {
+              const row = (
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "12px 16px", borderRadius: "10px", background: item.active ? C.sidebarActive : "transparent", cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: "14px", fontWeight: item.active ? "700" : "400", color: item.active ? C.charcoal : C.body }}>
+                  <span>{item.icon}</span>{item.label}
+                </div>
+              );
+              return item.href ? (
+                <Link key={item.label} to={item.href} style={{ textDecoration: "none" }}>{row}</Link>
+              ) : (
+                <div key={item.label}>{row}</div>
+              );
+            })}
           </div>
           <div style={{ padding: "16px 12px", borderTop: `1px solid ${C.border}`, display: "flex", flexDirection: "column", gap: "4px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 16px", cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: "13px", color: C.muted }}>
@@ -346,9 +363,6 @@ export default function CHWPage() {
             <div onClick={() => { removeToken(); navigate("/signup"); }} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "10px 16px", cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: "13px", color: C.muted }}>
               <span>→</span> Log Out
             </div>
-            <button style={{ background: C.urgent, color: C.white, border: "none", borderRadius: "8px", padding: "12px 16px", fontSize: "13px", fontWeight: "700", cursor: "pointer", fontFamily: "system-ui, sans-serif", marginTop: "8px" }}>
-              🚨 Emergency Referral
-            </button>
           </div>
         </aside>
 
@@ -447,7 +461,7 @@ export default function CHWPage() {
                 </div>
                 {assessmentsLoading ? (
                   <div style={{ textAlign: "center", padding: "32px 0", color: C.muted, fontSize: "14px", fontFamily: "system-ui, sans-serif" }}>Loading assessments…</div>
-                ) : assessments.length === 0 ? (
+                ) : assessmentsTotal === 0 ? (
                   <div style={{ textAlign: "center", padding: "32px 0", color: C.muted, fontSize: "14px", fontFamily: "system-ui, sans-serif" }}>No assessments yet. Log a patient above to get started.</div>
                 ) : (
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
@@ -479,17 +493,7 @@ export default function CHWPage() {
               <div style={{ background: C.pinkPale, border: `1px solid ${C.pinkLight}`, borderRadius: "16px", padding: "20px", textAlign: "center" }}>
                 <div style={{ width: "52px", height: "52px", borderRadius: "12px", background: C.goldLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "24px", margin: "0 auto 12px" }}>📋</div>
                 <div style={{ fontSize: "14px", fontWeight: "700", color: C.charcoal, marginBottom: "8px", fontFamily: "Georgia, serif" }}>Daily Impact</div>
-                <div style={{ fontSize: "13px", color: C.body, lineHeight: "1.6", fontFamily: "system-ui, sans-serif" }}>You have assisted <strong>{assessments.length}</strong> patient{assessments.length !== 1 ? "s" : ""} today. High performance in referral tracking.</div>
-              </div>
-              <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: "16px", padding: "20px" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: C.muted, letterSpacing: "1px", textTransform: "uppercase", marginBottom: "12px", fontFamily: "system-ui, sans-serif" }}>ACTIVE REFERRALS</div>
-                <div style={{ fontSize: "14px", fontWeight: "600", color: C.charcoal, marginBottom: "6px", fontFamily: "system-ui, sans-serif" }}>Kenyatta Hospital</div>
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "8px" }}>
-                  <div style={{ height: "4px", flex: 1, background: C.pinkLight, borderRadius: "100px", marginRight: "8px" }}>
-                    <div style={{ width: `${Math.min((assessments.filter(a => a.status === "URGENT").length / Math.max(assessments.length, 1)) * 100, 100)}%`, height: "100%", background: C.urgent, borderRadius: "100px" }} />
-                  </div>
-                  <span style={{ fontSize: "13px", fontWeight: "700", color: C.urgent, fontFamily: "system-ui, sans-serif" }}>{assessments.filter(a => a.status === "URGENT").length} Urgent</span>
-                </div>
+                <div style={{ fontSize: "13px", color: C.body, lineHeight: "1.6", fontFamily: "system-ui, sans-serif" }}>You have assisted <strong>{assessmentsTotal}</strong> patient{assessmentsTotal !== 1 ? "s" : ""} today.</div>
               </div>
             </div>
           </div>
@@ -505,7 +509,13 @@ export default function CHWPage() {
                 {[{ label: "LINKS", links: ["Mission", "Privacy Policy"] }, { label: "LEGAL", links: ["Terms of Service", "Disclaimer"] }].map(col => (
                   <div key={col.label} style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                     <span style={{ fontSize: "11px", fontWeight: "700", color: C.muted, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>{col.label}</span>
-                    {col.links.map(l => <span key={l} style={{ fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>{l}</span>)}
+                    {col.links.map(l => {
+                      const href = l === "Privacy Policy" ? "/privacy" : l === "Terms of Service" ? "/terms" : null;
+                      const style = { fontSize: "13px", color: C.muted, cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "none" };
+                      return href
+                        ? <Link key={l} to={href} style={style}>{l}</Link>
+                        : <span key={l} style={style}>{l}</span>;
+                    })}
                   </div>
                 ))}
               </div>
@@ -565,6 +575,7 @@ export default function CHWPage() {
           </div>
           <span style={{ fontSize: "20px", color: C.muted }}>›</span>
         </div>
+        {codeError && <p style={{ fontSize: "13px", color: C.errorText, fontFamily: "system-ui, sans-serif", marginTop: "-8px", marginBottom: "16px" }}>{codeError}</p>}
 
         {/* NEW PATIENT INTAKE ACCORDION */}
         <div style={{ background: C.white, border: `1px solid ${C.border}`, borderRadius: "14px", padding: "18px 20px", marginBottom: "24px" }}>
@@ -636,7 +647,7 @@ export default function CHWPage() {
           </div>
           <div style={{ background: C.goldLight, borderRadius: "14px", padding: "20px", position: "relative" }}>
             <div style={{ fontSize: "24px", marginBottom: "8px" }}>☑</div>
-            <div style={{ fontSize: "28px", fontWeight: "800", color: C.charcoal, fontFamily: "Georgia, serif" }}>{assessments.length}</div>
+            <div style={{ fontSize: "28px", fontWeight: "800", color: C.charcoal, fontFamily: "Georgia, serif" }}>{assessmentsTotal}</div>
             <div style={{ fontSize: "13px", color: "#92720A", fontFamily: "system-ui, sans-serif" }}>Visits Today</div>
             <div style={{ position: "absolute", bottom: "-8px", right: "-8px", width: "44px", height: "44px", borderRadius: "50%", background: C.urgent, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "20px", color: C.white }}>✚</div>
           </div>
@@ -646,16 +657,23 @@ export default function CHWPage() {
       {/* BOTTOM NAV */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: C.white, borderTop: `1px solid ${C.border}`, display: "grid", gridTemplateColumns: "repeat(4, 1fr)", padding: "8px 0 6px" }}>
         {[
-          { icon: "👥", label: "Patient List", active: true },
-          { icon: "🕐", label: "History",      active: false },
-          { icon: "📊", label: "Analytics",    active: false },
-          { icon: "⚙",  label: "Settings",     active: false },
-        ].map(item => (
-          <div key={item.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", cursor: "pointer", background: item.active ? C.goldLight : "transparent", borderRadius: "8px", padding: "4px 0" }}>
-            <span style={{ fontSize: "20px" }}>{item.icon}</span>
-            <span style={{ fontSize: "10px", color: item.active ? C.gold : C.muted, fontFamily: "system-ui, sans-serif", fontWeight: item.active ? "700" : "400" }}>{item.label}</span>
-          </div>
-        ))}
+          { icon: "👥", label: "Patient List", active: true, href: null },
+          { icon: "🕐", label: "History",      active: false, href: null },
+          { icon: "📊", label: "Analytics",    active: false, href: null },
+          { icon: "⚙",  label: "Settings",     active: false, href: "/settings" },
+        ].map(item => {
+          const cell = (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "3px", cursor: "pointer", background: item.active ? C.goldLight : "transparent", borderRadius: "8px", padding: "4px 0" }}>
+              <span style={{ fontSize: "20px" }}>{item.icon}</span>
+              <span style={{ fontSize: "10px", color: item.active ? C.gold : C.muted, fontFamily: "system-ui, sans-serif", fontWeight: item.active ? "700" : "400" }}>{item.label}</span>
+            </div>
+          );
+          return item.href ? (
+            <Link key={item.label} to={item.href} style={{ textDecoration: "none" }}>{cell}</Link>
+          ) : (
+            <div key={item.label}>{cell}</div>
+          );
+        })}
       </div>
     </div>
   );

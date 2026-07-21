@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import CHWCode, InstitutionalLead, SubscriptionTier
+from .models import CHWCode, DoctorSubscription, InstitutionalLead, SubscriptionTier
 
 
 class SubscriptionTierSerializer(serializers.ModelSerializer):
@@ -30,4 +30,11 @@ class CHWCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = CHWCode
         fields = ("code", "unlocks_under_18", "max_redemptions", "expires_at", "created_at")
+        read_only_fields = fields
+
+
+class DoctorSubscriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoctorSubscription
+        fields = ("tier", "status", "practitioner_count", "price_usd", "current_period_end", "created_at")
         read_only_fields = fields

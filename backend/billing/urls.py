@@ -6,6 +6,7 @@ from .views import (
     CycleTrackingView,
     DoctorCallbackView,
     DoctorCheckoutInitiateView,
+    DoctorSubscriptionMeView,
     InstitutionalLeadView,
     MultiProfileView,
     PaystackWebhookView,
@@ -29,6 +30,7 @@ urlpatterns = [
     # Paystack checkout + webhook
     path("checkout/", CheckoutInitiateView.as_view(), name="billing-checkout"),
     path("doctor-checkout/", DoctorCheckoutInitiateView.as_view(), name="billing-doctor-checkout"),
+    path("doctor-subscription/", DoctorSubscriptionMeView.as_view(), name="billing-doctor-subscription"),
     path("webhooks/paystack/", PaystackWebhookView.as_view(), name="billing-paystack-webhook"),
 
     # Feature-gate stubs

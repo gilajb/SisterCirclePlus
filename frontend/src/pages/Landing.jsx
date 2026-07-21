@@ -342,9 +342,13 @@ export default function LandingPage() {
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
               <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>About</span>
-              {["Mission", "Privacy Policy", "Disclaimer"].map((l) => (
-                <span key={l} style={{ fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>{l}</span>
-              ))}
+              {["Mission", "Privacy Policy", "Disclaimer"].map((l) => {
+                const href = l === "Privacy Policy" ? "/privacy" : null;
+                const style = { fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "none" };
+                return href
+                  ? <Link key={l} to={href} style={style}>{l}</Link>
+                  : <span key={l} style={style}>{l}</span>;
+              })}
             </div>
             {!mobile && (
               <div id="contact" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>

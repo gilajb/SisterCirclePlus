@@ -1,7 +1,12 @@
+from datetime import timedelta
+
 from django.db import IntegrityError
+from django.utils import timezone
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+from api.throttles import CheckoutRateThrottle
 
 from .access_control import requires_tier
 from .models import (
@@ -11,7 +16,11 @@ from .models import (
     SubscriptionTier,
 )
 from .payments.paystack import PaystackProvider
-from .serializers import InstitutionalLeadSerializer, SubscriptionTierSerializer
+from .serializers import (
+    DoctorSubscriptionSerializer,
+    InstitutionalLeadSerializer,
+    SubscriptionTierSerializer,
+)
 
 # ---------------------------------------------------------------------------
 # Public pricing catalog
@@ -56,6 +65,11 @@ class CHWGenerateCodeView(generics.GenericAPIView):
                 {"detail": "Only Community Health Workers can generate access codes."},
                 status=status.HTTP_403_FORBIDDEN,
             )
+        if not user.email_verified:
+            return Response(
+                {"detail": "Please verify your email before generating access codes."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
         if user.institutional_license_id is None:
             return Response(
                 {"detail": "Your account is not linked to an institutional license yet."},
@@ -69,6 +83,7 @@ class CHWGenerateCodeView(generics.GenericAPIView):
                     code=code_value,
                     institutional_license=user.institutional_license,
                     created_by=user,
+                    expires_at=timezone.now() + timedelta(hours=24),
                 )
                 break
             except IntegrityError:
@@ -135,6 +150,8 @@ class CheckoutInitiateView(generics.GenericAPIView):
     purchasable here; under_18 and free can never reach a checkout session."""
 
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [CheckoutRateThrottle]
+    throttle_scope = "checkout"
 
     def post(self, request, *args, **kwargs):
         tier_code = request.data.get("tier_code")
@@ -163,6 +180,8 @@ class DoctorCheckoutInitiateView(generics.GenericAPIView):
     through the institutional 'Talk to us' lead form instead."""
 
     permission_classes = [permissions.IsAuthenticated]
+    throttle_classes = [CheckoutRateThrottle]
+    throttle_scope = "checkout"
 
     def post(self, request, *args, **kwargs):
         tier = request.data.get("tier")
@@ -188,6 +207,24 @@ class DoctorCheckoutInitiateView(generics.GenericAPIView):
             return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(result, status=status.HTTP_200_OK)
+
+
+class DoctorSubscriptionMeView(APIView):
+    """GET /api/billing/doctor-subscription/ — authenticated. Lets the frontend gate
+    the Doctor Portal on real subscription status rather than guessing from a role flag;
+    a user with no DoctorSubscription row at all (never checked out) gets a clean
+    has_subscription: false rather than a 404."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        subscription = getattr(request.user, "doctor_subscription", None)
+        if subscription is None:
+            return Response({"has_subscription": False}, status=status.HTTP_200_OK)
+        return Response(
+            {"has_subscription": True, **DoctorSubscriptionSerializer(subscription).data},
+            status=status.HTTP_200_OK,
+        )
 
 
 class PaystackWebhookView(APIView):

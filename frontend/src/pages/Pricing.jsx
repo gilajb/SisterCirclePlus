@@ -266,7 +266,7 @@ export default function PricingPage() {
       const { data } = await api.post("/api/billing/doctor-checkout/", {
         tier: tier.key,
         ...(tier.needsPractitionerCount && { practitioner_count: practitionerCount }),
-        callback_url: `${window.location.origin}/dashboard`,
+        callback_url: `${window.location.origin}/doctor-portal`,
       });
       window.location.href = data.authorization_url;
     } catch (err) {

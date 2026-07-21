@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import api from "@/lib/axios";
 
 // ---------------------------------------------------------------------------
@@ -190,14 +190,36 @@ function downloadReport(result) {
 
 export default function ResultsPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const historicalId = searchParams.get("id");
   const [mobile, setMobile] = useState(false);
   const [result, setResult] = useState(null);
+  const [isHistorical, setIsHistorical] = useState(false);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
 
-  // Load result from sessionStorage
+  // Two sources: a submission id in the URL (viewing a past result from Dashboard
+  // history, via GET /api/symptoms/<id>/ — the same row-level-security-scoped endpoint
+  // used elsewhere) or sessionStorage (the just-completed symptom-check flow).
   useEffect(() => {
+    if (historicalId) {
+      api.get(`/api/symptoms/${historicalId}/`)
+        .then(res => {
+          const s = res.data;
+          setResult({
+            submission_id: s.id,
+            risk_tier: s.risk_tier,
+            conditions: s.ai_result?.conditions ?? [],
+            next_steps: s.ai_result?.next_steps ?? [],
+            team_note: s.ai_result?.team_note ?? "",
+          });
+          setIsHistorical(true);
+        })
+        .catch(() => navigate("/dashboard", { replace: true }));
+      return;
+    }
+
     const raw = sessionStorage.getItem("sistercircle_result");
     if (!raw) {
       navigate("/symptom-check", { replace: true });
@@ -208,7 +230,7 @@ export default function ResultsPage() {
     } catch {
       navigate("/symptom-check", { replace: true });
     }
-  }, [navigate]);
+  }, [historicalId, navigate]);
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768);
@@ -322,23 +344,37 @@ export default function ResultsPage() {
               >
                 ↓ Report
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving || saved}
-                style={{
-                  background: saved ? "#2E7D52" : saving ? C.muted : C.charcoal,
-                  color: C.white,
-                  border: "none", borderRadius: "8px",
-                  padding: "10px 20px", fontSize: "14px", fontWeight: "600",
-                  cursor: saving || saved ? "not-allowed" : "pointer",
-                  fontFamily: "system-ui, sans-serif",
-                  display: "flex", alignItems: "center", gap: "6px",
-                  transition: "background 0.2s",
-                  minWidth: "220px", justifyContent: "center",
-                }}
-              >
-                {saveLabel}
-              </button>
+              {isHistorical ? (
+                <Link to="/dashboard" style={{ textDecoration: "none" }}>
+                  <button style={{
+                    background: C.charcoal, color: C.white,
+                    border: "none", borderRadius: "8px",
+                    padding: "10px 20px", fontSize: "14px", fontWeight: "600",
+                    cursor: "pointer", fontFamily: "system-ui, sans-serif",
+                    minWidth: "220px",
+                  }}>
+                    ← Back to Dashboard
+                  </button>
+                </Link>
+              ) : (
+                <button
+                  onClick={handleSave}
+                  disabled={saving || saved}
+                  style={{
+                    background: saved ? "#2E7D52" : saving ? C.muted : C.charcoal,
+                    color: C.white,
+                    border: "none", borderRadius: "8px",
+                    padding: "10px 20px", fontSize: "14px", fontWeight: "600",
+                    cursor: saving || saved ? "not-allowed" : "pointer",
+                    fontFamily: "system-ui, sans-serif",
+                    display: "flex", alignItems: "center", gap: "6px",
+                    transition: "background 0.2s",
+                    minWidth: "220px", justifyContent: "center",
+                  }}
+                >
+                  {saveLabel}
+                </button>
+              )}
             </div>
           )}
           {saveError && (
@@ -505,14 +541,22 @@ export default function ResultsPage() {
               </div>
               <div style={{ display: "flex", gap: "48px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {["Mission", "Privacy Policy"].map((l) => (
-                    <span key={l} style={{ fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>{l}</span>
-                  ))}
+                  {["Mission", "Privacy Policy"].map((l) => {
+                    const href = l === "Privacy Policy" ? "/privacy" : null;
+                    const style = { fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "none" };
+                    return href
+                      ? <Link key={l} to={href} style={style}>{l}</Link>
+                      : <span key={l} style={style}>{l}</span>;
+                  })}
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                  {["Terms of Service", "Disclaimer"].map((l) => (
-                    <span key={l} style={{ fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif" }}>{l}</span>
-                  ))}
+                  {["Terms of Service", "Disclaimer"].map((l) => {
+                    const href = l === "Terms of Service" ? "/terms" : null;
+                    const style = { fontSize: "13px", color: "#999", cursor: "pointer", fontFamily: "system-ui, sans-serif", textDecoration: "none" };
+                    return href
+                      ? <Link key={l} to={href} style={style}>{l}</Link>
+                      : <span key={l} style={style}>{l}</span>;
+                  })}
                 </div>
               </div>
             </div>
@@ -532,23 +576,37 @@ export default function ResultsPage() {
             <p style={{ fontSize: "12px", color: "#B91C1C", margin: 0, fontFamily: "system-ui, sans-serif", textAlign: "center" }}>{saveError}</p>
           )}
           <div style={{ display: "flex", gap: "12px" }}>
-            <button
-              onClick={handleSave}
-              disabled={saving || saved}
-              style={{
-                flex: 1,
-                background: saved ? "#2E7D52" : saving ? C.muted : C.charcoal,
-                color: C.white,
-                border: "none", borderRadius: "10px",
-                padding: "14px", fontSize: "15px", fontWeight: "600",
-                cursor: saving || saved ? "not-allowed" : "pointer",
-                fontFamily: "system-ui, sans-serif",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-                transition: "background 0.2s",
-              }}
-            >
-              📋 {saved ? "Saved!" : saving ? "Saving…" : "Save to Dashboard"}
-            </button>
+            {isHistorical ? (
+              <Link to="/dashboard" style={{ flex: 1, textDecoration: "none" }}>
+                <button style={{
+                  width: "100%",
+                  background: C.charcoal, color: C.white,
+                  border: "none", borderRadius: "10px",
+                  padding: "14px", fontSize: "15px", fontWeight: "600",
+                  cursor: "pointer", fontFamily: "system-ui, sans-serif",
+                }}>
+                  ← Back to Dashboard
+                </button>
+              </Link>
+            ) : (
+              <button
+                onClick={handleSave}
+                disabled={saving || saved}
+                style={{
+                  flex: 1,
+                  background: saved ? "#2E7D52" : saving ? C.muted : C.charcoal,
+                  color: C.white,
+                  border: "none", borderRadius: "10px",
+                  padding: "14px", fontSize: "15px", fontWeight: "600",
+                  cursor: saving || saved ? "not-allowed" : "pointer",
+                  fontFamily: "system-ui, sans-serif",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+                  transition: "background 0.2s",
+                }}
+              >
+                📋 {saved ? "Saved!" : saving ? "Saving…" : "Save to Dashboard"}
+              </button>
+            )}
             <button
               onClick={() => downloadReport(result)}
               style={{
