@@ -325,7 +325,7 @@ class PaystackProviderTests(BaseBillingTestCase):
         PaymentTransaction.objects.create(
             user=user,
             reference="ref_success1",
-            amount_kes=250,
+            amount_usd=2.99,
             raw_payload={"tier_code": "standard"},
         )
 
@@ -388,7 +388,7 @@ class PaystackProviderTests(BaseBillingTestCase):
         PaymentTransaction.objects.create(
             user=user,
             reference="ref_doc_success1",
-            amount_kes=5500,
+            amount_usd=69.99,
             purpose=PaymentTransaction.PURPOSE_DOCTOR_SUBSCRIPTION,
             raw_payload={"doctor_tier": "clinic", "practitioner_count": 4},
         )
@@ -412,7 +412,7 @@ class PaystackProviderTests(BaseBillingTestCase):
         PaymentTransaction.objects.create(
             user=user,
             reference="ref_success2",
-            amount_kes=250,
+            amount_usd=2.99,
             raw_payload={"tier_code": "standard"},
         )
         provider = PaystackProvider()

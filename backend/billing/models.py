@@ -47,7 +47,7 @@ class SubscriptionTier(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ["price_min_kes"]
+        ordering = ["price_min_usd"]
 
     def __str__(self):
         return self.name
@@ -196,7 +196,7 @@ class DoctorSubscription(models.Model):
     tier = models.CharField(max_length=20, choices=TIER_CHOICES)
     practitioner_count = models.PositiveIntegerField(null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
-    price_kes = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price_usd = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     current_period_end = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -265,7 +265,7 @@ class PaymentTransaction(models.Model):
     )
     provider = models.CharField(max_length=20, default="paystack")
     reference = models.CharField(max_length=255, unique=True)  # idempotency key
-    amount_kes = models.DecimalField(max_digits=10, decimal_places=2)
+    amount_usd = models.DecimalField(max_digits=10, decimal_places=2)
     purpose = models.CharField(max_length=30, choices=PURPOSE_CHOICES, default=PURPOSE_SUBSCRIPTION)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
     raw_payload = models.JSONField(default=dict, blank=True)

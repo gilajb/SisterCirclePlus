@@ -15,11 +15,11 @@ _SUCCESS_EVENTS = {"charge.success", "subscription.create"}
 _FAILURE_EVENTS = {"invoice.payment_failed", "subscription.disable"}
 
 # Doctor/clinic tiers are a flat platform-access fee (never per-patient or
-# referral-commission based). Charged at the midpoint of the published range.
-# Hospital/network is negotiable and sales-led — never self-serve checkout.
-DOCTOR_TIER_PRICES_KES = {
-    DoctorSubscription.TIER_SOLO: 2000,
-    DoctorSubscription.TIER_CLINIC: 5500,
+# referral-commission based). Hospital/network is negotiable and sales-led — never
+# self-serve checkout, so it has no entry here.
+DOCTOR_TIER_PRICES_USD = {
+    DoctorSubscription.TIER_SOLO: 24.99,
+    DoctorSubscription.TIER_CLINIC: 69.99,
 }
 
 
@@ -34,12 +34,10 @@ class PaystackProvider(PaymentProvider):
         if not tier.self_serve:
             raise ValueError(f"Tier '{tier_code}' is not available for self-serve checkout.")
 
-        # Charge the floor of the tier's KES range; amount is in the smallest currency
-        # unit (cents) as required by Paystack.
-        amount_kes = tier.price_min_kes or 0
+        amount_usd = tier.price_min_usd or 0
         data = self._initialize_transaction(
             email=user.email,
-            amount_kes=amount_kes,
+            amount_usd=amount_usd,
             callback_url=callback_url,
             metadata={"user_id": user.id, "tier_code": tier_code},
         )
@@ -48,7 +46,7 @@ class PaystackProvider(PaymentProvider):
             user=user,
             provider="paystack",
             reference=data["reference"],
-            amount_kes=amount_kes,
+            amount_usd=amount_usd,
             purpose=PaymentTransaction.PURPOSE_SUBSCRIPTION,
             status=PaymentTransaction.STATUS_PENDING,
             raw_payload={"tier_code": tier_code},
@@ -57,13 +55,13 @@ class PaystackProvider(PaymentProvider):
         return {"authorization_url": data["authorization_url"], "reference": data["reference"]}
 
     def initiate_doctor_checkout(self, *, user, doctor_tier, practitioner_count, callback_url):
-        if doctor_tier not in DOCTOR_TIER_PRICES_KES:
+        if doctor_tier not in DOCTOR_TIER_PRICES_USD:
             raise ValueError(f"Doctor tier '{doctor_tier}' is not available for self-serve checkout.")
 
-        amount_kes = DOCTOR_TIER_PRICES_KES[doctor_tier]
+        amount_usd = DOCTOR_TIER_PRICES_USD[doctor_tier]
         data = self._initialize_transaction(
             email=user.email,
-            amount_kes=amount_kes,
+            amount_usd=amount_usd,
             callback_url=callback_url,
             metadata={"user_id": user.id, "doctor_tier": doctor_tier},
         )
@@ -72,7 +70,7 @@ class PaystackProvider(PaymentProvider):
             user=user,
             provider="paystack",
             reference=data["reference"],
-            amount_kes=amount_kes,
+            amount_usd=amount_usd,
             purpose=PaymentTransaction.PURPOSE_DOCTOR_SUBSCRIPTION,
             status=PaymentTransaction.STATUS_PENDING,
             raw_payload={"doctor_tier": doctor_tier, "practitioner_count": practitioner_count},
@@ -80,14 +78,15 @@ class PaystackProvider(PaymentProvider):
 
         return {"authorization_url": data["authorization_url"], "reference": data["reference"]}
 
-    def _initialize_transaction(self, *, email, amount_kes, callback_url, metadata):
+    def _initialize_transaction(self, *, email, amount_usd, callback_url, metadata):
+        # Amount is in the smallest currency unit (cents) as required by Paystack.
         response = requests.post(
             f"{PAYSTACK_BASE_URL}/transaction/initialize",
             headers={"Authorization": f"Bearer {self.secret_key}"},
             json={
                 "email": email,
-                "amount": int(amount_kes * 100),
-                "currency": "KES",
+                "amount": int(amount_usd * 100),
+                "currency": "USD",
                 "callback_url": callback_url,
                 "metadata": metadata,
             },
@@ -172,7 +171,7 @@ class PaystackProvider(PaymentProvider):
                 "tier": doctor_tier,
                 "practitioner_count": transaction.raw_payload.get("practitioner_count"),
                 "status": DoctorSubscription.STATUS_ACTIVE,
-                "price_kes": transaction.amount_kes,
+                "price_usd": transaction.amount_usd,
             },
         )
 

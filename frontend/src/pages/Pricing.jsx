@@ -24,14 +24,14 @@ const DOCTOR_TIERS = [
   {
     key: "solo",
     name: "Solo Practitioner",
-    price: "KES 1,500–2,500/mo",
+    price: "$24.99/mo",
     includes: ["Verified listing", "Referral inbox"],
     selfServe: true,
   },
   {
     key: "clinic",
     name: "Clinic (2–10)",
-    price: "KES 4,000–7,000/mo",
+    price: "$69.99/mo",
     includes: ["Multi-provider listing", "Referral analytics dashboard"],
     selfServe: true,
     needsPractitionerCount: true,
@@ -39,7 +39,7 @@ const DOCTOR_TIERS = [
   {
     key: "hospital",
     name: "Hospital / Network",
-    price: "KES 12,000–20,000/mo",
+    price: "$199.99/mo",
     priceNote: "negotiable",
     includes: ["Priority placement", "Scheduling / API integration", "Sales-led"],
     selfServe: false,
@@ -47,25 +47,25 @@ const DOCTOR_TIERS = [
 ];
 
 const INSTITUTIONAL_TIERS = [
-  { key: "pilot", name: "Pilot / Small", cohort: "≤500", annual: "KES 80k–150k", perBeneficiary: "~KES 160–300" },
-  { key: "mid", name: "Mid-size", cohort: "501–2,000", annual: "KES 250k–500k", perBeneficiary: "~KES 125–250" },
-  { key: "large", name: "Large / Multi-site", cohort: "2,001–10,000", annual: "KES 800k–2M, negotiable", perBeneficiary: "~KES 80–200" },
-  { key: "national", name: "National / Gov", cohort: "10,000+", annual: "Custom, sales-led", perBeneficiary: "Sub-KES 100" },
+  { key: "pilot", name: "Pilot / Small", cohort: "≤500", annual: "Up to $1,250", perBeneficiary: "$2.49" },
+  { key: "mid", name: "Mid-size", cohort: "501–2,000", annual: "$1,000 – $4,000", perBeneficiary: "$1.99" },
+  { key: "large", name: "Large / Multi-site", cohort: "2,001–10,000", annual: "$3,000 – $15,000, negotiable", perBeneficiary: "$1.49" },
+  { key: "national", name: "National / Gov", cohort: "10,000+", annual: "Custom, sales-led", perBeneficiary: "Sub-$0.99" },
 ];
 
-function formatKesRange(min, max) {
+function formatUsd(min, max) {
   const lo = Number(min);
   const hi = Number(max);
-  if (lo === 0 && hi === 0) return "KES 0";
-  if (lo === hi) return `KES ${lo}`;
-  return `KES ${lo}–${hi}`;
+  if (lo === 0 && hi === 0) return "$0";
+  if (lo === hi) return `$${lo.toFixed(2)}`;
+  return `$${lo.toFixed(2)}–$${hi.toFixed(2)}`;
 }
 
 function billingCycleLabel(cycle) {
   return cycle === "one_time" ? "One-time" : "/mo";
 }
 
-function TierCard({ tier, onSubscribe, subscribing }) {
+function TierCard({ tier, onSubscribe, subscribing, redeemCode, setRedeemCode, onRedeem, redeeming, redeemError, redeemSuccess }) {
   const isUnder18 = tier.code === "under_18";
   const isFree = tier.code === "free";
 
@@ -86,7 +86,7 @@ function TierCard({ tier, onSubscribe, subscribing }) {
           {tier.name}
         </div>
         <div style={{ fontSize: "24px", fontWeight: "800", color: C.mauve, fontFamily: "Georgia, serif", marginTop: "6px" }}>
-          {formatKesRange(tier.price_min_kes, tier.price_max_kes)}
+          {formatUsd(tier.price_min_usd, tier.price_max_usd)}
           <span style={{ fontSize: "13px", fontWeight: "500", color: C.muted }}> {billingCycleLabel(tier.billing_cycle)}</span>
         </div>
       </div>
@@ -107,22 +107,68 @@ function TierCard({ tier, onSubscribe, subscribing }) {
       </div>
 
       {isUnder18 ? (
-        <div
-          style={{
-            background: C.goldLight,
-            border: `1px solid ${C.goldBorder}`,
-            borderRadius: "10px",
-            padding: "14px 16px",
-            fontSize: "13px",
-            color: "#92720A",
-            fontFamily: "system-ui, sans-serif",
-            fontWeight: "600",
-            textAlign: "center",
-            lineHeight: "1.5",
-          }}
-        >
-          Ask your school or CHW program for an access code — this tier isn't available through individual sign-up.
-        </div>
+        redeemSuccess ? (
+          <div
+            style={{
+              background: "#F0FFF4",
+              border: "1px solid #A8D5B5",
+              borderRadius: "10px",
+              padding: "14px 16px",
+              fontSize: "13px",
+              color: "#2E7D52",
+              fontFamily: "system-ui, sans-serif",
+              fontWeight: "600",
+              textAlign: "center",
+              lineHeight: "1.5",
+            }}
+          >
+            ✓ Code redeemed — you now have under-18 access.
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+            <p style={{ fontSize: "13px", color: C.body, fontFamily: "system-ui, sans-serif", margin: 0, lineHeight: "1.5" }}>
+              Ask your school or CHW program for an access code, then redeem it here — this tier isn't available through individual sign-up.
+            </p>
+            <input
+              value={redeemCode}
+              onChange={(e) => setRedeemCode(e.target.value.toUpperCase())}
+              placeholder="Enter access code"
+              style={{
+                width: "100%",
+                padding: "11px 14px",
+                border: `1px solid ${C.inputBorder}`,
+                borderRadius: "8px",
+                fontSize: "14px",
+                fontFamily: "system-ui, monospace",
+                letterSpacing: "2px",
+                color: C.charcoal,
+                background: C.white,
+                outline: "none",
+                boxSizing: "border-box",
+              }}
+            />
+            {redeemError && (
+              <p style={{ fontSize: "12px", color: "#B91C1C", fontFamily: "system-ui, sans-serif", margin: 0 }}>{redeemError}</p>
+            )}
+            <button
+              onClick={onRedeem}
+              disabled={redeeming}
+              style={{
+                background: redeeming ? C.muted : C.goldLight,
+                color: "#92720A",
+                border: `1px solid ${C.goldBorder}`,
+                borderRadius: "8px",
+                padding: "12px",
+                fontSize: "14px",
+                fontWeight: "700",
+                cursor: redeeming ? "not-allowed" : "pointer",
+                fontFamily: "system-ui, sans-serif",
+              }}
+            >
+              {redeeming ? "Redeeming…" : "Redeem Code"}
+            </button>
+          </div>
+        )
       ) : (
         <button
           onClick={() => onSubscribe(tier)}
@@ -162,6 +208,11 @@ export default function PricingPage() {
   const [doctorSubscribing, setDoctorSubscribing] = useState("");
   const [doctorError, setDoctorError] = useState("");
   const [practitionerCount, setPractitionerCount] = useState(2);
+
+  const [redeemCode, setRedeemCode] = useState("");
+  const [redeeming, setRedeeming] = useState(false);
+  const [redeemError, setRedeemError] = useState("");
+  const [redeemSuccess, setRedeemSuccess] = useState(false);
 
   useEffect(() => {
     const check = () => setMobile(window.innerWidth < 768);
@@ -221,6 +272,29 @@ export default function PricingPage() {
     } catch (err) {
       setDoctorError(err.response?.data?.detail || "Couldn't start checkout. Please try again.");
       setDoctorSubscribing("");
+    }
+  }
+
+  async function handleRedeemCode() {
+    setRedeemError("");
+    const code = redeemCode.trim();
+    if (!code) {
+      setRedeemError("Please enter a code.");
+      return;
+    }
+    if (!isLoggedIn()) {
+      navigate(`/signup?next=pricing`);
+      return;
+    }
+    setRedeeming(true);
+    try {
+      await api.post("/api/billing/redeem-code/", { code });
+      setRedeemSuccess(true);
+      setRedeemCode("");
+    } catch (err) {
+      setRedeemError(err.response?.data?.detail || "Couldn't redeem this code. Please check it and try again.");
+    } finally {
+      setRedeeming(false);
     }
   }
 
@@ -301,7 +375,18 @@ export default function PricingPage() {
               }}
             >
               {tiers.map((tier) => (
-                <TierCard key={tier.code} tier={tier} onSubscribe={handleSubscribe} subscribing={subscribing} />
+                <TierCard
+                  key={tier.code}
+                  tier={tier}
+                  onSubscribe={handleSubscribe}
+                  subscribing={subscribing}
+                  redeemCode={redeemCode}
+                  setRedeemCode={setRedeemCode}
+                  onRedeem={handleRedeemCode}
+                  redeeming={redeeming}
+                  redeemError={redeemError}
+                  redeemSuccess={redeemSuccess}
+                />
               ))}
             </div>
           )}

@@ -15,7 +15,7 @@ from .models import (
 
 @admin.register(SubscriptionTier)
 class SubscriptionTierAdmin(admin.ModelAdmin):
-    list_display = ("name", "code", "price_min_kes", "price_max_kes", "billing_cycle", "self_serve", "is_active")
+    list_display = ("name", "code", "price_min_usd", "price_max_usd", "billing_cycle", "self_serve", "is_active")
     list_filter = ("self_serve", "is_active", "billing_cycle")
     search_fields = ("name", "code")
 
@@ -48,7 +48,7 @@ class InstitutionalLeadAdmin(admin.ModelAdmin):
 
 @admin.register(DoctorSubscription)
 class DoctorSubscriptionAdmin(admin.ModelAdmin):
-    list_display = ("user", "tier", "practitioner_count", "status", "price_kes", "current_period_end")
+    list_display = ("user", "tier", "practitioner_count", "status", "price_usd", "current_period_end")
     list_filter = ("tier", "status")
     search_fields = ("user__username", "user__email")
 
@@ -62,7 +62,7 @@ class SubscriptionAdmin(admin.ModelAdmin):
 
 @admin.register(PaymentTransaction)
 class PaymentTransactionAdmin(admin.ModelAdmin):
-    list_display = ("reference", "user", "provider", "purpose", "amount_kes", "status", "created_at")
+    list_display = ("reference", "user", "provider", "purpose", "amount_usd", "status", "created_at")
     list_filter = ("provider", "purpose", "status")
     readonly_fields = ("raw_payload", "created_at")
     search_fields = ("reference", "user__username")
