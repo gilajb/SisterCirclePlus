@@ -23,6 +23,7 @@ from .pagination import StandardResultsPagination
 from .sanitizers import sanitize_symptom_payload, sanitize_text
 from .serializers import (
     ChangePasswordSerializer,
+    ContactMessageSerializer,
     CustomTokenObtainPairSerializer,
     DoctorReferralSerializer,
     EmailVerificationConfirmSerializer,
@@ -35,6 +36,7 @@ from .serializers import (
 )
 from .throttles import (
     AnalyseRateThrottle,
+    ContactRateThrottle,
     EmailVerificationRateThrottle,
     LoginRateThrottle,
     PasswordResetRateThrottle,
@@ -772,4 +774,43 @@ class UserDataExportView(generics.GenericAPIView):
                 },
                 "symptom_submissions": SymptomSubmissionSerializer(submissions, many=True).data,
             }
+        )
+
+
+# ---------------------------------------------------------------------------
+# Contact form
+# ---------------------------------------------------------------------------
+
+
+class ContactMessageCreateView(generics.CreateAPIView):
+    """POST /api/contact/ — public, rate-limited. Persists the message (so nothing is lost
+    if the notification email bounces or SMTP isn't configured yet) and best-effort emails
+    CONTACT_EMAIL — fail_silently=True matches every other transactional send in this app;
+    a submitter shouldn't get a 500 just because the notification hop failed."""
+
+    serializer_class = ContactMessageSerializer
+    permission_classes = [permissions.AllowAny]
+    throttle_classes = [ContactRateThrottle]
+    throttle_scope = "contact"
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        contact_message = serializer.save()
+
+        send_mail(
+            subject=f"[SisterCircle+ Contact] {contact_message.get_topic_display()} — {contact_message.name}",
+            message=(
+                f"From: {contact_message.name} <{contact_message.email}>\n"
+                f"Topic: {contact_message.get_topic_display()}\n\n"
+                f"{contact_message.message}"
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[settings.CONTACT_EMAIL],
+            fail_silently=True,
+        )
+
+        return Response(
+            {"detail": "Thanks for reaching out — we'll get back to you soon."},
+            status=status.HTTP_201_CREATED,
         )

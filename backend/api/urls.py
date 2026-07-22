@@ -6,6 +6,7 @@ from .views import (
     ChangePasswordView,
     CHWAssessmentsView,
     ClaimReferralView,
+    ContactMessageCreateView,
     DoctorReferralInboxView,
     EmailVerificationConfirmView,
     EmailVerificationRequestView,
@@ -38,6 +39,9 @@ urlpatterns = [
     path("auth/verify-email/request/", EmailVerificationRequestView.as_view(), name="verify-email-request"),
     path("auth/verify-email/confirm/", EmailVerificationConfirmView.as_view(), name="verify-email-confirm"),
     path("auth/guardian-consent/confirm/", GuardianConsentConfirmView.as_view(), name="guardian-consent-confirm"),
+
+    # Contact — public
+    path("contact/", ContactMessageCreateView.as_view(), name="contact-create"),
 
     # Auth — authenticated
     path("auth/me/", MeView.as_view(), name="auth-me"),

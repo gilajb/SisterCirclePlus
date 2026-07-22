@@ -3,7 +3,8 @@ from django.utils import timezone
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from .models import SymptomSubmission, User
+from .models import ContactMessage, SymptomSubmission, User
+from .sanitizers import sanitize_text
 
 
 # ---------------------------------------------------------------------------
@@ -200,6 +201,34 @@ class SymptomSubmissionSerializer(serializers.ModelSerializer):
         model = SymptomSubmission
         fields = "__all__"
         read_only_fields = ("user", "ai_result", "risk_tier", "created_at")
+
+
+# ---------------------------------------------------------------------------
+# Contact form
+# ---------------------------------------------------------------------------
+
+
+class ContactMessageSerializer(serializers.ModelSerializer):
+    """Public, unauthenticated — see ContactRateThrottle for the abuse guard. Every
+    free-text field is sanitized the same way symptom free-text is (see sanitizers.py):
+    this never reaches an AI prompt, but it's still headed for the DB and an outbound
+    notification email, so HTML/script stripping still applies."""
+
+    class Meta:
+        model = ContactMessage
+        fields = ("name", "email", "topic", "message")
+
+    def validate_name(self, value):
+        cleaned = sanitize_text(value, max_length=100)
+        if not cleaned:
+            raise serializers.ValidationError("Please enter your name.")
+        return cleaned
+
+    def validate_message(self, value):
+        cleaned = sanitize_text(value, max_length=2000)
+        if len(cleaned) < 10:
+            raise serializers.ValidationError("Please include a bit more detail in your message.")
+        return cleaned
 
 
 class DoctorReferralSerializer(serializers.ModelSerializer):

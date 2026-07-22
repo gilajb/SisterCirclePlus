@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import SymptomSubmission, User
+from .models import ContactMessage, SymptomSubmission, User
 
 
 @admin.register(User)
@@ -38,3 +38,11 @@ class SymptomSubmissionAdmin(admin.ModelAdmin):
     list_filter = ("risk_tier",)
     readonly_fields = ("ai_result", "created_at")
     search_fields = ("user__username", "user__email")
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ("name", "email", "topic", "created_at")
+    list_filter = ("topic",)
+    readonly_fields = ("name", "email", "topic", "message", "created_at")
+    search_fields = ("name", "email", "message")

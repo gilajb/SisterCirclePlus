@@ -185,6 +185,7 @@ REST_FRAMEWORK = {
         "email_verification": "5/hour",
         "register": "10/hour",
         "checkout": "10/hour",
+        "contact": "5/hour",
     },
 }
 
@@ -210,6 +211,9 @@ SIMPLE_JWT = {
 
 FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@sistercircleplus.com")
+# Inbox that receives contact-form notifications — the same address shown on the landing
+# page footer, so a submission and the "email us directly" fallback land in the same place.
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "sistercircleplus@protonmail.com")
 
 EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
 EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))

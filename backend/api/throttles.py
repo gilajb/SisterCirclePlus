@@ -48,3 +48,8 @@ class CheckoutRateThrottle(ScopedRateThrottle):
     can pile up unresolved rows and burn Paystack API quota with no benefit to anyone.
     Server-derived pricing means there's no tampering vector, just this cost/DB-bloat
     one — 10/hour is well above any real user's checkout attempts."""
+
+
+class ContactRateThrottle(ScopedRateThrottle):
+    """5 messages per hour per IP — the contact form is public and unauthenticated, so
+    without this it's an open spam/email-bombing vector against our own inbox."""

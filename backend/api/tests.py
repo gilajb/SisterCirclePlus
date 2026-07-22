@@ -7,7 +7,7 @@ from django.utils.http import urlsafe_base64_encode
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from .models import SymptomSubmission, User
+from .models import ContactMessage, SymptomSubmission, User
 from .tokens import email_verification_token, guardian_consent_token
 
 
@@ -648,3 +648,79 @@ class ChangePasswordTests(APITestCase):
 
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password("OldPassw0rd!23"))  # unchanged
+
+
+class ContactFormTests(APITestCase):
+    def setUp(self):
+        cache.clear()
+
+    def _submit(self, name="Jane Doe", email="jane@example.com", topic="general", message=None):
+        return self.client.post(
+            reverse("contact-create"),
+            {
+                "name": name,
+                "email": email,
+                "topic": topic,
+                "message": message or "I have a question about pricing for my clinic.",
+            },
+            format="json",
+        )
+
+    def test_valid_submission_creates_message_and_sends_mail(self):
+        response = self._submit()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(ContactMessage.objects.count(), 1)
+
+        saved = ContactMessage.objects.get()
+        self.assertEqual(saved.name, "Jane Doe")
+        self.assertEqual(saved.email, "jane@example.com")
+        self.assertEqual(saved.topic, "general")
+
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn("jane@example.com", mail.outbox[0].body)
+        self.assertIn("pricing", mail.outbox[0].body)
+
+    def test_no_authentication_required(self):
+        response = self._submit()
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_missing_email_rejected(self):
+        response = self._submit(email="")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    def test_invalid_email_rejected(self):
+        response = self._submit(email="not-an-email")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_too_short_message_rejected(self):
+        response = self._submit(message="hi")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(ContactMessage.objects.count(), 0)
+
+    def test_html_and_script_tags_are_stripped_from_message(self):
+        response = self._submit(message="<script>alert(1)</script>Please call me back soon.")
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        saved = ContactMessage.objects.get()
+        self.assertNotIn("<script>", saved.message)
+        self.assertIn("Please call me back soon.", saved.message)
+
+    def test_omitted_topic_defaults_to_general(self):
+        response = self.client.post(
+            reverse("contact-create"),
+            {"name": "Jane Doe", "email": "jane@example.com", "message": "Just saying hello there."},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
+        self.assertEqual(ContactMessage.objects.get().topic, ContactMessage.TOPIC_GENERAL)
+
+    def test_invalid_topic_rejected(self):
+        response = self._submit(topic="not-a-real-topic")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_endpoint_is_rate_limited(self):
+        for _ in range(5):
+            response = self._submit()
+            self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self._submit()
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

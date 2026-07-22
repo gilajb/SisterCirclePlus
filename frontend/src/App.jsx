@@ -12,6 +12,7 @@ import VerifyEmail from "./pages/VerifyEmail.jsx";
 import Settings from "./pages/Settings.jsx";
 import Terms from "./pages/Terms.jsx";
 import Privacy from "./pages/Privacy.jsx";
+import Contact from "./pages/Contact.jsx";
 import GuardianConsent from "./pages/GuardianConsent.jsx";
 import NotFound from "./pages/NotFound.jsx";
 
@@ -31,6 +32,7 @@ export default function App() {
       <Route path="/settings" element={<Settings />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/privacy" element={<Privacy />} />
+      <Route path="/contact" element={<Contact />} />
       <Route path="/guardian-consent" element={<GuardianConsent />} />
       <Route path="*" element={<NotFound />} />
     </Routes>

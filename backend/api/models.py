@@ -144,3 +144,32 @@ class SymptomSubmission(models.Model):
 
     def __str__(self):
         return f"{self.user.username} — {self.risk_tier} — {self.created_at:%Y-%m-%d}"
+
+
+class ContactMessage(models.Model):
+    """A message submitted through the public /contact page. Not tied to a User account —
+    the contact form is reachable by anyone, logged in or not, so this stores the sender's
+    own claimed name/email rather than a FK."""
+
+    TOPIC_GENERAL = "general"
+    TOPIC_SUPPORT = "support"
+    TOPIC_PARTNERSHIP = "partnership"
+    TOPIC_PRESS = "press"
+    TOPIC_CHOICES = [
+        (TOPIC_GENERAL, "General inquiry"),
+        (TOPIC_SUPPORT, "Account or technical support"),
+        (TOPIC_PARTNERSHIP, "Partnership or institution"),
+        (TOPIC_PRESS, "Press or media"),
+    ]
+
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    topic = models.CharField(max_length=20, choices=TOPIC_CHOICES, default=TOPIC_GENERAL)
+    message = models.TextField(max_length=2000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.name} <{self.email}> — {self.topic} — {self.created_at:%Y-%m-%d}"

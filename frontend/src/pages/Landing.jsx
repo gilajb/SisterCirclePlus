@@ -66,10 +66,11 @@ export default function LandingPage() {
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
             }}>About</span>
-            <span onClick={() => scrollToId("contact")} style={{
+            <Link to="/contact" style={{
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
-            }}>Contact Us</span>
+              textDecoration: "none",
+            }}>Contact Us</Link>
             <span style={{
               fontSize: "15px", cursor: "pointer", color: C.charcoal,
               fontFamily: "system-ui, sans-serif", fontWeight: "400",
@@ -347,17 +348,13 @@ export default function LandingPage() {
                   : <span key={l} style={style}>{l}</span>;
               })}
             </div>
-            {!mobile && (
-              <div id="contact" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>Contact</span>
-                <span style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif" }}>sistercircleplus@protonmail.com</span>
-                <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
-                  {["↗", "✉"].map((icon) => (
-                    <div key={icon} style={{ width: "30px", height: "30px", borderRadius: "6px", border: "1px solid #444", display: "flex", alignItems: "center", justifyContent: "center", color: "#999", cursor: "pointer", fontSize: "14px" }}>{icon}</div>
-                  ))}
-                </div>
-              </div>
-            )}
+            <div id="contact" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+              <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>Contact</span>
+              <span style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif" }}>sistercircleplus@protonmail.com</span>
+              <Link to="/contact" style={{ fontSize: "13px", color: C.pinkLight, fontFamily: "system-ui, sans-serif", textDecoration: "none", fontWeight: "600" }}>
+                Send us a message →
+              </Link>
+            </div>
           </div>
 
           {/* Mobile bottom nav */}
