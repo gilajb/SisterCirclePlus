@@ -2,7 +2,7 @@
 
 **Version:** 2.0
 **Last updated:** July 2026
-**Contact:** security@sistercircleplus.com
+**Contact:** sistercircleplus@protonmail.com
 **Platform:** SisterCircle+ — AI-powered menstrual health triage for adolescent girls and young women in Sub-Saharan Africa
 
 ---
@@ -152,7 +152,7 @@ We take security vulnerabilities seriously. SisterCircle+ handles sensitive repr
 
 **Please do not report security vulnerabilities via public GitHub issues.**
 
-1. **Email:** security@sistercircleplus.com
+1. **Email:** sistercircleplus@protonmail.com
 2. **Subject line:** `[SECURITY] Brief description`
 3. **Include in your report:**
    - Description of the vulnerability and its potential impact
@@ -246,7 +246,7 @@ This single endpoint permanently deletes the user account, cascades to delete **
 
 ### 6.3 Manual Deletion Request
 
-If you cannot access your account, email **privacy@sistercircleplus.com** with the email address associated with your account and the subject line `Data Deletion Request`. We will process manual deletion requests within **14 days** and confirm by email when complete.
+If you cannot access your account, email **sistercircleplus@protonmail.com** with the email address associated with your account and the subject line `Data Deletion Request`. We will process manual deletion requests within **14 days** and confirm by email when complete.
 
 ### 6.4 CHW-Generated Data
 
@@ -385,6 +385,6 @@ This section exists because a security document that only describes what's been 
 
 ---
 
-*This document is maintained by the SisterCircle+ engineering team. For questions about data handling, email privacy@sistercircleplus.com. For security vulnerabilities, email security@sistercircleplus.com.*
+*This document is maintained by the SisterCircle+ engineering team. For questions about data handling, email sistercircleplus@protonmail.com. For security vulnerabilities, email sistercircleplus@protonmail.com.*
 
 *© 2026 SisterCircle+. Medical Clarity through Clinical Warmth.*

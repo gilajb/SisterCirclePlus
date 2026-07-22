@@ -375,7 +375,6 @@ export default function CHWPage() {
               <h1 style={{ fontSize: "22px", fontWeight: "800", color: C.charcoal, margin: 0, fontFamily: "Georgia, serif" }}>
                 Institutional Dashboard — <span style={{ color: C.pink }}>{displayName}</span>
               </h1>
-              <span style={{ background: C.goldLight, color: C.gold, border: `1px solid ${C.goldBorder}`, fontSize: "12px", fontWeight: "700", padding: "4px 14px", borderRadius: "100px", fontFamily: "system-ui, sans-serif", display: "flex", alignItems: "center", gap: "6px" }}>★ VERIFIED PARTNER</span>
             </div>
             <div style={{ display: "flex", gap: "16px", alignItems: "center" }}>
               <span style={{ fontSize: "20px", cursor: "pointer" }}>🔔</span>

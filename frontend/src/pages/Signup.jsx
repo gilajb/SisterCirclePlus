@@ -166,6 +166,7 @@ export default function SignupPage() {
   const [tab, setTab] = useState(searchParams.get("type") === "chw" ? "chw" : "signup");
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [age, setAge] = useState("");
   const [location, setLocation] = useState("");
@@ -189,8 +190,8 @@ export default function SignupPage() {
 
   async function handleSignup() {
     setSignupError("");
-    if (!name || !email || !password || !age) {
-      setSignupError("Please fill in your name, email, age, and password.");
+    if (!name || !username || !email || !password || !age) {
+      setSignupError("Please fill in your name, username, email, age, and password.");
       return;
     }
     if (!termsAccepted) {
@@ -203,7 +204,7 @@ export default function SignupPage() {
     }
     const nameParts = name.trim().split(" ");
     const payload = {
-      username: email.split("@")[0],
+      username,
       email, password, password2: password,
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
@@ -233,7 +234,7 @@ export default function SignupPage() {
     setLoginLoading(true);
     try {
       const { data } = await api.post("/api/auth/login/", {
-        username: loginEmail.includes("@") ? loginEmail.split("@")[0] : loginEmail,
+        email: loginEmail,
         password: loginPassword,
       });
       setToken(data.access, data.refresh);
@@ -247,7 +248,7 @@ export default function SignupPage() {
 
   async function handleCHWSignup() {
     setSignupError("");
-    if (!name || !email || !password || !age) { setSignupError("Please fill in all fields."); return; }
+    if (!name || !username || !email || !password || !age) { setSignupError("Please fill in all fields."); return; }
     if (!termsAccepted) {
       setSignupError("Please agree to the Terms of Service and Privacy Policy to continue.");
       return;
@@ -258,7 +259,7 @@ export default function SignupPage() {
     }
     const nameParts = name.trim().split(" ");
     const payload = {
-      username: email.split("@")[0],
+      username,
       email, password, password2: password,
       first_name: nameParts[0] || "",
       last_name: nameParts.slice(1).join(" ") || "",
@@ -313,6 +314,7 @@ export default function SignupPage() {
           <TextInput label="Contact Name" placeholder="e.g., Amina Yusuf" value={name} onChange={setName} />
           <TextInput label="Institution / School / NGO Name" placeholder="e.g., Kenyatta Girls' Secondary School" value={location} onChange={setLocation} />
           <TextInput label="Email Address" placeholder="name@organization.org" type="email" value={email} onChange={setEmail} />
+          <TextInput label="Username" placeholder="e.g., amina_yusuf" value={username} onChange={setUsername} />
           <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
           {isMinorAge(age) && <GuardianEmailInput value={guardianEmail} onChange={setGuardianEmail} />}
           <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />
@@ -332,6 +334,7 @@ export default function SignupPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
           <TextInput label="Full Name" placeholder="e.g., Amara Okafor" value={name} onChange={setName} />
           <TextInput label="Email Address" placeholder="name@example.com" type="email" value={email} onChange={setEmail} />
+          <TextInput label="Username" placeholder="e.g., amara_okafor" value={username} onChange={setUsername} />
           <AgeInput
             label="Age" placeholder="Enter your age" value={age} onChange={setAge}
             hint="We ask for your age to tailor clinical guidance — it doesn't affect your access or pricing."
@@ -411,19 +414,9 @@ export default function SignupPage() {
           <h1 style={{ fontSize: "42px", fontWeight: "800", color: C.white, margin: "0 0 16px", fontFamily: "Georgia, serif", lineHeight: "1.2" }}>
             Your body has been speaking...
           </h1>
-          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.85)", margin: "0 0 32px", fontFamily: "system-ui, sans-serif", lineHeight: "1.7", maxWidth: "380px" }}>
+          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.85)", margin: 0, fontFamily: "system-ui, sans-serif", lineHeight: "1.7", maxWidth: "380px" }}>
             We're here to listen. Join a supportive community where clinical expertise meets the warmth of sisterhood.
           </p>
-          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <div style={{ display: "flex" }}>
-              {["👩🏾", "👩🏿", "👩🏽"].map((e, i) => (
-                <div key={i} style={{ width: "36px", height: "36px", borderRadius: "50%", background: `hsl(${20 + i * 15}, 40%, ${55 + i * 5}%)`, border: "2px solid rgba(255,255,255,0.6)", marginLeft: i > 0 ? "-10px" : 0, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px" }}>{e}</div>
-              ))}
-            </div>
-            <span style={{ fontSize: "14px", color: "rgba(255,255,255,0.9)", fontFamily: "system-ui, sans-serif" }}>
-              <strong>5,000+</strong> Women tracking their health
-            </span>
-          </div>
         </div>
       </div>
 
@@ -447,6 +440,7 @@ export default function SignupPage() {
             <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
               <TextInput label="Full Name" placeholder="Grace Adeleke" value={name} onChange={setName} />
               <TextInput label="Email Address" placeholder="grace@example.com" type="email" value={email} onChange={setEmail} />
+              <TextInput label="Username" placeholder="grace_adeleke" value={username} onChange={setUsername} />
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
                 <AgeInput label="Age" placeholder="28" value={age} onChange={setAge} />
                 <TextInput label="Location" placeholder="Lagos, NG" value={location} onChange={setLocation} />
@@ -500,6 +494,7 @@ export default function SignupPage() {
               <TextInput label="Contact Name" placeholder="e.g., Amina Yusuf" value={name} onChange={setName} />
               <TextInput label="Institution / School / NGO Name" placeholder="e.g., Kenyatta Girls' Secondary School" value={location} onChange={setLocation} />
               <TextInput label="Email Address" placeholder="name@organization.org" type="email" value={email} onChange={setEmail} />
+              <TextInput label="Username" placeholder="e.g., amina_yusuf" value={username} onChange={setUsername} />
               <AgeInput label="Age" placeholder="30" value={age} onChange={setAge} />
               {isMinorAge(age) && <GuardianEmailInput value={guardianEmail} onChange={setGuardianEmail} />}
               <PasswordInput label="Create Password" placeholder="••••••••" value={password} onChange={setPassword} />

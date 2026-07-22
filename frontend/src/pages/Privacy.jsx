@@ -118,10 +118,10 @@ export default function PrivacyPage() {
             <li><strong>Access your data</strong> — download everything we hold about you from Account Settings ("Export My Data"), or via <code>GET /api/user/export/</code></li>
             <li><strong>Delete your data</strong> — permanently and immediately, from Account Settings ("Delete My Account"), or via <code>DELETE /api/user/delete/</code></li>
             <li><strong>Correct your data</strong> — update your profile details directly, or contact us for anything not self-editable</li>
-            <li><strong>Object or withdraw consent</strong> — contact us at privacy@sistercircleplus.com</li>
+            <li><strong>Object or withdraw consent</strong> — contact us at sistercircleplus@protonmail.com</li>
           </ul>
           <p style={{ marginTop: "10px" }}>
-            If you can't access your account, email <strong>privacy@sistercircleplus.com</strong> with
+            If you can't access your account, email <strong>sistercircleplus@protonmail.com</strong> with
             the email address on the account; we'll respond within 14 days.
           </p>
         </Section>
@@ -160,8 +160,8 @@ export default function PrivacyPage() {
 
         <Section title="11. Contact">
           <p>
-            Data and privacy questions: <strong>privacy@sistercircleplus.com</strong>. Security
-            vulnerabilities: <strong>security@sistercircleplus.com</strong>.
+            Data and privacy questions: <strong>sistercircleplus@protonmail.com</strong>. Security
+            vulnerabilities: <strong>sistercircleplus@protonmail.com</strong>.
           </p>
         </Section>
 

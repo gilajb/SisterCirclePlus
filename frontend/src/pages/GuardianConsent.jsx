@@ -119,7 +119,7 @@ export default function GuardianConsentPage() {
             </div>
             <p style={{ fontSize: "14px", color: C.body, fontFamily: "system-ui, sans-serif", margin: 0 }}>
               Thank you — your response has been saved. Questions about this request can be
-              sent to privacy@sistercircleplus.com.
+              sent to sistercircleplus@protonmail.com.
             </p>
           </>
         )}

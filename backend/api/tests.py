@@ -123,6 +123,50 @@ class LoginThrottleTests(APITestCase):
         self.assertEqual(sixth.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
+class LoginByEmailTests(APITestCase):
+    """Login used to only work because the frontend guessed `username` as
+    email.split("@")[0] — identical to how registration derived it. Now that
+    registration lets a user pick a real, distinct username, that guess breaks. Login
+    resolves the real username from the submitted email server-side instead."""
+
+    def setUp(self):
+        cache.clear()
+        User.objects.create_user(
+            username="sunshine_grace", email="grace@example.com", password="CorrectPass1!"
+        )
+
+    def test_login_by_email_with_distinct_username_succeeds(self):
+        response = self.client.post(
+            reverse("auth-login"), {"email": "grace@example.com", "password": "CorrectPass1!"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+        self.assertEqual(response.data["user"]["username"], "sunshine_grace")
+
+    def test_login_by_email_is_case_insensitive(self):
+        response = self.client.post(
+            reverse("auth-login"), {"email": "Grace@Example.com", "password": "CorrectPass1!"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+    def test_unknown_email_fails_cleanly_not_500(self):
+        response = self.client.post(
+            reverse("auth-login"), {"email": "nobody@example.com", "password": "CorrectPass1!"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_neither_email_nor_username_fails_cleanly_not_500(self):
+        response = self.client.post(reverse("auth-login"), {"password": "CorrectPass1!"}, format="json")
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_raw_username_login_still_works(self):
+        """Backward-compatible: sending `username` directly (no `email`) still works —
+        e.g. for the seed_admin account, or any direct API caller."""
+        response = self.client.post(
+            reverse("auth-login"), {"username": "sunshine_grace", "password": "CorrectPass1!"}, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK, response.data)
+
+
 class EmailVerificationTests(APITestCase):
     def setUp(self):
         cache.clear()

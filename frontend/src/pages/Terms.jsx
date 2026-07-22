@@ -149,9 +149,9 @@ export default function TermsPage() {
 
         <Section title="13. Contact">
           <p>
-            Questions about these Terms: <strong>legal@sistercircleplus.com</strong>. Security
-            concerns: <strong>security@sistercircleplus.com</strong>. Privacy/data requests:{" "}
-            <strong>privacy@sistercircleplus.com</strong>.
+            Questions about these Terms: <strong>sistercircleplus@protonmail.com</strong>. Security
+            concerns: <strong>sistercircleplus@protonmail.com</strong>. Privacy/data requests:{" "}
+            <strong>sistercircleplus@protonmail.com</strong>.
           </p>
         </Section>
 

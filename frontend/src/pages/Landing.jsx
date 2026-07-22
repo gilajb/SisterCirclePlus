@@ -188,10 +188,12 @@ export default function LandingPage() {
         display: "flex", justifyContent: "center",
         gap: mobile ? "20px" : "60px", flexWrap: "wrap",
       }}>
-        {(mobile
-          ? [{ icon: "✓", label: "WHO Verified" }, { icon: "✓", label: "AfricaCDC" }, { icon: "✓", label: "SafeCare" }]
-          : [{ icon: "🌍", label: "Global Reach" }, { icon: "✦", label: "AI-Powered" }, { icon: "📍", label: "African-First" }, { icon: "💻", label: "Free to Start" }]
-        ).map((t) => (
+        {[
+          { icon: "🌍", label: "Global Reach" },
+          { icon: "✦", label: "AI-Powered" },
+          { icon: "📍", label: "African-First" },
+          { icon: "💻", label: "Free to Start" },
+        ].map((t) => (
           <div key={t.label} style={{
             display: "flex", alignItems: "center", gap: "8px",
             fontSize: "13px", color: C.body, fontFamily: "system-ui, sans-serif", fontWeight: "500",
@@ -223,12 +225,12 @@ export default function LandingPage() {
             gap: "20px",
           }}>
             {(mobile ? [
-              { icon: "📊", iconBg: C.pinkPale, title: "Precision Triage", desc: "Clinical algorithms optimized for specific regional health profiles.", highlight: false },
-              { icon: "👥", iconBg: C.goldLight, title: "Community Safe-Space", desc: "Connect with peers in moderated, secure circles for shared health journeys.", highlight: true },
-              { icon: "✚", iconBg: C.pinkPale, title: "Emergency Referrals", desc: "Instant connection to local CHW networks for critical intervention.", highlight: false },
+              { icon: "📊", iconBg: C.pinkPale, title: "Symptom Triage", desc: "AI-assisted guidance that takes your reported symptoms and location into account.", highlight: false },
+              { icon: "🔒", iconBg: C.goldLight, title: "Your Data, Your Control", desc: "Export or permanently delete your health data anytime, right from your account.", highlight: true },
+              { icon: "✚", iconBg: C.pinkPale, title: "Doctor Referral Network", desc: "Urgent and refer-tier results are flagged for review by subscribed doctors and clinics.", highlight: false },
             ] : [
-              { icon: "✦", iconBg: C.pinkPale, title: "AI-Powered Analysis", desc: "Our proprietary algorithms are trained on diverse datasets to provide the most accurate health insights for your unique profile.", highlight: false },
-              { icon: "🛡", iconBg: C.pinkPale, title: "No Specialist Needed", desc: "Skip the waiting rooms. Get clinical-grade triage results and actionable next steps directly through your mobile device.", highlight: true },
+              { icon: "✦", iconBg: C.pinkPale, title: "AI-Powered Analysis", desc: "A structured triage read — risk tier, possible conditions, and next steps — powered by Claude AI, based on the symptoms you report yourself.", highlight: false },
+              { icon: "🛡", iconBg: C.pinkPale, title: "No Waiting Rooms", desc: "Get a clear triage read and actionable next steps in minutes, right from your phone — informational support, not a diagnosis.", highlight: true },
               { icon: "♥", iconBg: C.goldLight, title: "Free to Start", desc: "Every woman gets a free symptom check, AI triage, and doctor referral — no age restriction, no payment required to begin.", highlight: false },
             ]).map((card) => (
               <div key={card.title} style={{
@@ -250,36 +252,31 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* TESTIMONIAL — mobile only */}
+      {/* FOUNDER STORY — mobile only */}
       {mobile && (
         <section style={{ background: C.mauve, padding: "48px 24px" }}>
           <div style={{ fontSize: "64px", fontWeight: "800", color: C.pinkLight, fontFamily: "Georgia, serif", lineHeight: 1, marginBottom: "16px" }}>99</div>
           <blockquote style={{ fontSize: "17px", lineHeight: "1.7", color: C.white, margin: 0, fontFamily: "Georgia, serif", fontStyle: "italic" }}>
-            "SisterCircle+ gave me the words to describe my symptoms to my doctor when I felt overwhelmed. It's like having a doctor in the family."
+            "For six years, I was told my pain was psychological, then gastrological — anything but what it actually was. It took years before anyone said the words dysmenorrhea and menorrhagia out loud. Until then, I was told that pain is just normal, like so many other girls and women are. I built SisterCircle+ so no one else has to wait years to be believed."
           </blockquote>
           <div style={{ display: "flex", alignItems: "center", gap: "12px", marginTop: "20px" }}>
-            <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: C.pinkLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700", color: C.mauve }}>AM</div>
+            {/* Initials placeholder — swap for Joy's photo once we have one */}
+            <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: C.pinkLight, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px", fontWeight: "700", color: C.mauve }}>JB</div>
             <div>
-              <div style={{ fontSize: "14px", fontWeight: "700", color: C.white, fontFamily: "system-ui, sans-serif" }}>Amara M.</div>
-              <div style={{ fontSize: "13px", color: C.pinkLight, fontFamily: "system-ui, sans-serif" }}>Nairobi, Kenya</div>
+              <div style={{ fontSize: "14px", fontWeight: "700", color: C.white, fontFamily: "system-ui, sans-serif" }}>Joy Chepkorir Bett</div>
+              <div style={{ fontSize: "13px", color: C.pinkLight, fontFamily: "system-ui, sans-serif" }}>Founder, SisterCircle+</div>
             </div>
           </div>
         </section>
       )}
 
-      {/* DIAGNOSTIC READINESS — mobile only */}
+      {/* START PROMPT — mobile only */}
       {mobile && (
         <section style={{ background: C.bg, padding: "32px 24px" }}>
           <div style={{ background: C.white, borderRadius: "16px", padding: "24px", border: `1px solid ${C.border}` }}>
-            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-              <span style={{ fontSize: "14px", fontWeight: "600", color: C.charcoal, fontFamily: "system-ui, sans-serif" }}>Diagnostic Readiness</span>
-              <span style={{ fontSize: "14px", color: C.pink, fontWeight: "600", fontFamily: "system-ui, sans-serif" }}>85% Complete</span>
-            </div>
-            <div style={{ background: C.border, borderRadius: "100px", height: "8px", overflow: "hidden" }}>
-              <div style={{ width: "85%", height: "100%", background: `linear-gradient(90deg, ${C.pink}, ${C.gold})`, borderRadius: "100px" }} />
-            </div>
-            <p style={{ fontSize: "14px", color: C.body, marginTop: "14px", fontFamily: "system-ui, sans-serif", margin: "14px 0 0" }}>
-              Join 10,000+ women getting clearer medical answers today.
+            <span style={{ fontSize: "14px", fontWeight: "600", color: C.charcoal, fontFamily: "system-ui, sans-serif" }}>Ready when you are</span>
+            <p style={{ fontSize: "14px", color: C.body, fontFamily: "system-ui, sans-serif", margin: "10px 0 0" }}>
+              Start your own symptom check — free, and just a few minutes.
             </p>
           </div>
         </section>
@@ -353,7 +350,7 @@ export default function LandingPage() {
             {!mobile && (
               <div id="contact" style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 <span style={{ fontSize: "11px", fontWeight: "700", color: C.pink, letterSpacing: "1px", textTransform: "uppercase", fontFamily: "system-ui, sans-serif" }}>Contact</span>
-                <span style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif" }}>hello@sistercircleplus.com</span>
+                <span style={{ fontSize: "13px", color: "#999", fontFamily: "system-ui, sans-serif" }}>sistercircleplus@protonmail.com</span>
                 <div style={{ display: "flex", gap: "10px", marginTop: "4px" }}>
                   {["↗", "✉"].map((icon) => (
                     <div key={icon} style={{ width: "30px", height: "30px", borderRadius: "6px", border: "1px solid #444", display: "flex", alignItems: "center", justifyContent: "center", color: "#999", cursor: "pointer", fontSize: "14px" }}>{icon}</div>

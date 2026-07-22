@@ -130,7 +130,22 @@ class GuardianConsentConfirmSerializer(serializers.Serializer):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """Adds basic user info to the login response, and bakes is_chw/tier into the JWT
     access token itself — the frontend's decodePayload() reads claims directly off the
-    token, not the response body, so these must live on the token to be usable there."""
+    token, not the response body, so these must live on the token to be usable there.
+
+    Login is by email, not username — the frontend never asks for a username at login.
+    It used to fake it by deriving `email.split("@")[0]` client-side and sending that as
+    `username`, which only worked because registration derived the exact same value the
+    exact same way. Now that registration lets a user pick their own real username (which
+    won't generally match their email's local part), that guess would just be wrong. This
+    resolves the real username server-side from the submitted email instead."""
+
+    email = serializers.EmailField(required=False, write_only=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # SimpleJWT's base serializer marks USERNAME_FIELD ("username") required by
+        # default; validate() below fills it in from `email`, so relax that here.
+        self.fields[self.username_field].required = False
 
     @classmethod
     def get_token(cls, user):
@@ -140,6 +155,15 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
     def validate(self, attrs):
+        email = attrs.pop("email", None)
+        if email:
+            user = User.objects.filter(email__iexact=email).first()
+            attrs[self.username_field] = user.username if user else ""
+        # Whatever combination of email/username was (or wasn't) submitted, the parent's
+        # validate() indexes attrs[self.username_field] directly — leaving it entirely
+        # absent (e.g. neither email nor username sent) would KeyError into a 500 instead
+        # of a clean "invalid credentials" 401.
+        attrs.setdefault(self.username_field, "")
         data = super().validate(attrs)
         data["user"] = {
             "id": self.user.id,
