@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "anymail",
     "api",
     "billing",
 ]
@@ -221,13 +222,26 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
 
-if EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+
+if BREVO_API_KEY:
+    # HTTP API, not SMTP — Render (and most PaaS hosts) block outbound SMTP ports
+    # (25/465/587) entirely. A plain send_mail() over the smtp backend below works fine
+    # locally but hangs in production until Gunicorn's worker-timeout kills the process
+    # mid-connect (confirmed via a WORKER TIMEOUT + smtplib.connect() traceback in prod
+    # logs) — fail_silently can't catch that because the worker is killed from outside,
+    # never raises a normal exception. Anymail's Brevo backend goes over HTTPS instead,
+    # which is never blocked. Requires a Brevo "Sender" (single-address verification, no
+    # domain needed) rather than a domain-authenticated sender.
+    EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+    ANYMAIL = {"BREVO_API_KEY": BREVO_API_KEY}
+elif EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    # Local-dev-only fallback — works on a normal ISP connection but NOT on Render in
+    # production, see the BREVO_API_KEY branch above.
     EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 else:
-    # No SMTP credentials set yet — print reset emails to the server console/log instead
-    # of silently dropping them or crashing. Add EMAIL_HOST_USER/EMAIL_HOST_PASSWORD (any
-    # provider — Gmail app password, SendGrid, Postmark, Resend, ...) to switch to real
-    # delivery; nothing else about the reset flow needs to change.
+    # No email credentials set yet — print reset emails to the server console/log instead
+    # of silently dropping them or crashing.
     EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # ---------------------------------------------------------------------------
