@@ -133,6 +133,6 @@
     @apply font-sans;
   }
   body {
-    @apply bg-background text-foreground min-h-screen antialiased;
+    @apply min-h-screen bg-background text-foreground antialiased;
   }
 }

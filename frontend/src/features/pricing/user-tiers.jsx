@@ -36,7 +36,7 @@ function RedeemCode() {
       setSuccess(true);
     } catch (err) {
       setError(
-        err.response?.data?.detail || "Couldn't redeem this code. Please check it and try again."
+        err.response?.data?.detail || "Couldn't redeem this code. Please check it and try again.",
       );
     } finally {
       setRedeeming(false);
@@ -47,7 +47,7 @@ function RedeemCode() {
     return (
       <p
         role="status"
-        className="border-success-border bg-success-bg text-success flex items-center justify-center gap-1.5 rounded-[10px] border px-4 py-3.5 text-center text-[13px] leading-normal font-semibold"
+        className="flex items-center justify-center gap-1.5 rounded-[10px] border border-success-border bg-success-bg px-4 py-3.5 text-center text-[13px] leading-normal font-semibold text-success"
       >
         <Check className="size-4 shrink-0" aria-hidden="true" />
         Code redeemed — you now have under-18 access.
@@ -57,7 +57,7 @@ function RedeemCode() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2.5">
-      <p className="text-body text-[13px] leading-normal">
+      <p className="text-[13px] leading-normal text-body">
         Ask your school or CHW program for an access code, then redeem it here — this tier isn't
         available through individual sign-up.
       </p>
@@ -70,7 +70,7 @@ function RedeemCode() {
         className="h-[42px] rounded-lg px-3.5 font-mono text-sm tracking-[2px]"
       />
       {error ? (
-        <p role="alert" className="text-danger text-xs">
+        <p role="alert" className="text-xs text-danger">
           {error}
         </p>
       ) : null}
@@ -79,7 +79,7 @@ function RedeemCode() {
         variant="outline"
         size="xl"
         disabled={redeeming}
-        className="border-gold-border bg-gold-light text-gold-dark hover:bg-gold-light/70 hover:text-gold-dark h-11 rounded-lg text-sm"
+        className="h-11 rounded-lg border-gold-border bg-gold-light text-sm text-gold-dark hover:bg-gold-light/70 hover:text-gold-dark"
       >
         {redeeming ? "Redeeming…" : "Redeem Code"}
       </Button>
@@ -92,12 +92,12 @@ function TierCard({ tier, subscribing, onSubscribe }) {
   const busy = subscribing === tier.code;
 
   return (
-    <article className="bg-card flex flex-col gap-4 rounded-2xl border px-6 py-7">
+    <article className="flex flex-col gap-4 rounded-2xl border bg-card px-6 py-7">
       <div>
         <h3 className="font-heading text-lg font-bold">{tier.name}</h3>
-        <p className="font-heading text-mauve mt-1.5 text-2xl font-extrabold">
+        <p className="mt-1.5 font-heading text-2xl font-extrabold text-mauve">
           {formatUsd(tier.price_min_usd, tier.price_max_usd)}
-          <span className="text-muted-foreground text-[13px] font-medium">
+          <span className="text-[13px] font-medium text-muted-foreground">
             {" "}
             {billingCycleLabel(tier.billing_cycle)}
           </span>
@@ -105,7 +105,7 @@ function TierCard({ tier, subscribing, onSubscribe }) {
       </div>
 
       {tier.description ? (
-        <p className="text-body text-[13px] leading-relaxed">{tier.description}</p>
+        <p className="text-[13px] leading-relaxed text-body">{tier.description}</p>
       ) : null}
 
       <FeatureList items={tier.features || []} className="flex-1" />
@@ -171,9 +171,9 @@ export function UserTiers({ initialTiers }) {
 
   return (
     <>
-      {loading ? <p className="text-muted-foreground text-sm">Loading pricing…</p> : null}
+      {loading ? <p className="text-sm text-muted-foreground">Loading pricing…</p> : null}
       {error ? (
-        <p role="alert" className="text-danger mb-4 text-sm">
+        <p role="alert" className="mb-4 text-sm text-danger">
           {error}
         </p>
       ) : null}

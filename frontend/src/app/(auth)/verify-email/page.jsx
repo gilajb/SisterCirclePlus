@@ -9,7 +9,7 @@ export default function VerifyEmailPage() {
   return (
     <CenteredCard>
       <Wordmark className="mb-2.5" />
-      <Suspense fallback={<p className="text-muted-foreground text-sm">Verifying your email…</p>}>
+      <Suspense fallback={<p className="text-sm text-muted-foreground">Verifying your email…</p>}>
         <VerifyEmail />
       </Suspense>
     </CenteredCard>

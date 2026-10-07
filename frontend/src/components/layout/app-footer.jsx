@@ -25,7 +25,7 @@ export function AppFooter() {
       <div className="mx-auto flex max-w-[1100px] flex-wrap justify-between gap-6">
         <div>
           <Wordmark className="mb-2 block text-lg" />
-          <p className="text-body max-w-xs text-[13px] leading-relaxed">
+          <p className="max-w-xs text-[13px] leading-relaxed text-body">
             © 2026 SisterCircle+. Medical Clarity through Clinical Warmth. Dedicated to reproductive
             health equity and empathetic diagnostic care.
           </p>
@@ -33,14 +33,14 @@ export function AppFooter() {
         <div className="flex gap-12">
           {COLUMNS.map((column) => (
             <div key={column.title} className="flex flex-col gap-2">
-              <h2 className="text-primary text-xs font-bold tracking-[1px] uppercase">
+              <h2 className="text-xs font-bold tracking-[1px] text-primary uppercase">
                 {column.title}
               </h2>
               {column.links.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="text-body hover:text-foreground text-[13px]"
+                  className="text-[13px] text-body hover:text-foreground"
                 >
                   {link.label}
                 </Link>

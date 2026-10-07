@@ -22,7 +22,7 @@ function VerifyEmailNotice() {
   }
 
   return (
-    <div className={`${bar} border-danger-border bg-danger-bg text-danger text-xs`}>
+    <div className={`${bar} border-danger-border bg-danger-bg text-xs text-danger`}>
       <span>Please verify your email — check your inbox for a link.</span>
       {state === "sent" ? (
         <span role="status" className="font-bold">
@@ -62,7 +62,7 @@ export function DashboardNotices({ me, portals }) {
 
       {/* Informational only; triage access is never gated on guardian consent. */}
       {me?.guardian_consent_status === "pending" ? (
-        <div className={`${bar} border-gold-border bg-gold-light text-gold-dark text-xs`}>
+        <div className={`${bar} border-gold-border bg-gold-light text-xs text-gold-dark`}>
           We've asked your parent/guardian to confirm this account — you already have full access,
           no need to wait.
         </div>

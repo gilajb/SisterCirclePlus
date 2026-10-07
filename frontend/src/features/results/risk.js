@@ -42,7 +42,7 @@ export function downloadReport(result) {
     "",
     "POTENTIAL CONDITIONS:",
     ...(result.conditions ?? []).map(
-      (c, i) => `  ${i + 1}. ${c.name} (${c.confidence}% confidence)\n     ${c.description}`
+      (c, i) => `  ${i + 1}. ${c.name} (${c.confidence}% confidence)\n     ${c.description}`,
     ),
     "",
     "NEXT STEPS:",

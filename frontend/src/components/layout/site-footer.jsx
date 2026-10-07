@@ -30,7 +30,7 @@ const QUICK_LINKS = [
 
 function ColumnTitle({ children }) {
   return (
-    <h2 className="text-primary text-[11px] font-bold tracking-[1px] uppercase">{children}</h2>
+    <h2 className="text-[11px] font-bold tracking-[1px] text-primary uppercase">{children}</h2>
   );
 }
 
@@ -42,8 +42,8 @@ export function SiteFooter() {
           <div className="col-span-2 flex flex-col gap-2.5 md:col-span-1">
             <Wordmark className="text-lg" />
             <p className="text-[13px] leading-relaxed text-[#999]">
-              Medical Clarity through Clinical Warmth. We bridge the gap between diagnostic data
-              and the human heart.
+              Medical Clarity through Clinical Warmth. We bridge the gap between diagnostic data and
+              the human heart.
             </p>
           </div>
 
@@ -69,7 +69,7 @@ export function SiteFooter() {
             </span>
             <Link
               href="/contact"
-              className="text-pink-light flex items-center gap-1 text-[13px] font-semibold"
+              className="flex items-center gap-1 text-[13px] font-semibold text-pink-light"
             >
               Send us a message <ArrowRight className="size-3.5" aria-hidden="true" />
             </Link>

@@ -7,7 +7,7 @@ export default function SimpleLayout({ children }) {
       <SimpleHeader />
       <main className="mx-auto max-w-[720px] px-6 pt-12 pb-24 has-data-narrow:max-w-[560px]">
         {children}
-        <p className="text-muted-foreground mt-12 text-xs">
+        <p className="mt-12 text-xs text-muted-foreground">
           © 2026 SisterCircle+. Medical Clarity through Clinical Warmth.
         </p>
       </main>

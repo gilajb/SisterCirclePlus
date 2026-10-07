@@ -32,9 +32,9 @@ SisterCircle+ provides:
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js 14 (App Router), Tailwind CSS |
+| Frontend | Next.js 16 (App Router), React 19, Tailwind CSS v4, shadcn/ui |
 | Backend | Django 4.2, Django REST Framework |
-| Auth | SimpleJWT (24-hour tokens, cookie-based storage) |
+| Auth | SimpleJWT (24-hour access tokens, stored in `localStorage`) |
 | AI | Anthropic Claude API (`claude-sonnet-4-6`) |
 | Database | PostgreSQL (production), SQLite (development) |
 | Deployment | Vercel (frontend), Render (backend) |
@@ -45,23 +45,23 @@ SisterCircle+ provides:
 
 ```
 sistercircle-plus/
-├── frontend/                   # Next.js 14 App Router
-│   ├── app/
-│   │   ├── page.jsx            # Landing page
-│   │   ├── signup/page.jsx     # Auth (login + register)
-│   │   ├── symptom-check/      # 4-step symptom form
-│   │   ├── results/            # AI triage results
-│   │   ├── dashboard/          # User health history
-│   │   ├── chw/                # Community Health Worker portal
-│   │   └── layout.jsx          # Root layout + metadata
-│   ├── lib/
-│   │   ├── axios.js            # Axios instance with JWT interceptors
-│   │   ├── auth.js             # Token storage (cookie-based)
-│   │   └── sanitize.js         # Client-side input sanitization
-│   ├── middleware.js            # Edge route protection + expiry check
+├── frontend/                   # Next.js 16 App Router, Tailwind CSS v4, shadcn/ui
+│   ├── src/
+│   │   ├── app/                # Routes and layouts
+│   │   │   ├── (marketing)/    # Landing, pricing, contact, terms, privacy (server-rendered)
+│   │   │   ├── (auth)/         # Signup/login, password reset, email and guardian links
+│   │   │   ├── (app)/          # Logged-in pages: dashboard, symptom check, results,
+│   │   │   │                   #   settings, CHW portal, doctor portal
+│   │   │   └── layout.jsx      # Root layout + metadata
+│   │   ├── components/
+│   │   │   ├── ui/             # shadcn primitives (button, input, dialog…)
+│   │   │   ├── layout/         # Headers, footers, portal shell, auth guard
+│   │   │   └── shared/         # Spinner, error banner, risk badges, form field
+│   │   ├── features/           # Page-specific components, one folder per area
+│   │   ├── lib/                # API client, auth helpers, sanitization, formatting
+│   │   └── globals.css         # Tailwind import and theme tokens
+│   ├── e2e/                    # Playwright screenshot and smoke tests
 │   ├── .env.local.example      # Required environment variables
-│   ├── tailwind.config.js
-│   ├── next.config.js
 │   └── package.json
 │
 ├── backend/                    # Django REST Framework
@@ -124,12 +124,14 @@ python manage.py runserver
 
 ```bash
 cd frontend
-pnpm install
+npm install
 cp .env.local.example .env.local  # Set NEXT_PUBLIC_API_URL=http://localhost:8000
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
+
+Other scripts: `npm run build`, `npm run lint`, `npm run format`, and `npm test` (Playwright; needs `npx playwright install chromium` once).
 
 ---
 

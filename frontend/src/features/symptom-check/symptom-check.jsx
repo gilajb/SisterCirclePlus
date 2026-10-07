@@ -71,8 +71,8 @@ export function SymptomCheck() {
           err,
           err.response
             ? "Analysis failed. Please try again."
-            : "Analysis failed. Please check your connection and try again."
-        )
+            : "Analysis failed. Please check your connection and try again.",
+        ),
       );
       setLoading(false);
     }
@@ -108,8 +108,8 @@ export function SymptomCheck() {
       />
 
       <div className="hidden px-12 pt-10 pb-5 text-center md:block">
-        <h1 className="font-heading text-mauve mb-3 text-4xl font-extrabold">Symptom Assessment</h1>
-        <p className="text-muted-foreground text-base italic">
+        <h1 className="mb-3 font-heading text-4xl font-extrabold text-mauve">Symptom Assessment</h1>
+        <p className="text-base text-muted-foreground italic">
           "We're listening. Tell us more about your experience."
         </p>
       </div>
@@ -117,11 +117,11 @@ export function SymptomCheck() {
       <main className="mx-auto max-w-[720px] px-5 pt-5 pb-28 md:px-12 md:pt-8 md:pb-[60px]">
         <div className="mb-6 md:mb-8">
           <div className="mb-2 flex items-center justify-between">
-            <span className="text-plum text-xs font-bold tracking-[0.5px] uppercase">
+            <span className="text-xs font-bold tracking-[0.5px] text-plum uppercase">
               Step {step} of {STEPS.length}
               <span className="md:hidden"> — {stepInfo.label}</span>
             </span>
-            <span className="text-muted-foreground text-[13px]">{progress}% Complete</span>
+            <span className="text-[13px] text-muted-foreground">{progress}% Complete</span>
           </div>
           <div
             role="progressbar"
@@ -129,25 +129,25 @@ export function SymptomCheck() {
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={progress}
-            className="bg-border h-[5px] overflow-hidden rounded-full"
+            className="h-[5px] overflow-hidden rounded-full bg-border"
           >
             <div
-              className="bg-plum h-full rounded-full transition-[width] duration-300 ease-out"
+              className="h-full rounded-full bg-plum transition-[width] duration-300 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         <div className="mb-7">
-          <h2 className="font-heading mb-2 text-[26px] font-extrabold md:text-[22px]">
+          <h2 className="mb-2 font-heading text-[26px] font-extrabold md:text-[22px]">
             {stepInfo.title}
           </h2>
-          <p className="text-body text-sm leading-relaxed">{stepInfo.sub}</p>
+          <p className="text-sm leading-relaxed text-body">{stepInfo.sub}</p>
         </div>
 
         <form
           onSubmit={handleSubmit}
-          className="md:bg-card md:rounded-2xl md:border md:p-9"
+          className="md:rounded-2xl md:border md:bg-card md:p-9"
           noValidate
         >
           <div className="flex flex-col gap-6">
@@ -156,7 +156,7 @@ export function SymptomCheck() {
           </div>
 
           {/* Actions: inline on desktop, fixed to the bottom of the screen on phones. */}
-          <div className="bg-card fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t px-5 py-4 md:static md:mt-8 md:justify-end md:border-0 md:bg-transparent md:p-0">
+          <div className="fixed inset-x-0 bottom-0 z-40 flex gap-3 border-t bg-card px-5 py-4 md:static md:mt-8 md:justify-end md:border-0 md:bg-transparent md:p-0">
             {step > 1 ? (
               <Button
                 type="button"

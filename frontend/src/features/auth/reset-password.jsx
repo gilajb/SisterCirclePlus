@@ -42,7 +42,7 @@ function RequestStep() {
       <div className="flex flex-col gap-3 py-3 text-center">
         <Check className="mx-auto size-8" aria-hidden="true" />
         <h1 className="font-heading text-base font-bold">Check your email</h1>
-        <p className="text-body text-[13px] leading-relaxed">
+        <p className="text-[13px] leading-relaxed text-body">
           If an account exists for <strong>{email}</strong>, we've sent a link to reset your
           password.
         </p>
@@ -53,8 +53,8 @@ function RequestStep() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-[18px]">
       <div>
-        <h1 className="font-heading mb-1.5 text-lg font-bold">Reset your password</h1>
-        <p className="text-muted-foreground text-[13px]">
+        <h1 className="mb-1.5 font-heading text-lg font-bold">Reset your password</h1>
+        <p className="text-[13px] text-muted-foreground">
           Enter your email and we'll send you a link to reset it.
         </p>
       </div>
@@ -121,7 +121,7 @@ function ConfirmStep({ uid, token }) {
       <div className="flex flex-col gap-3 py-3 text-center">
         <Check className="mx-auto size-8" aria-hidden="true" />
         <h1 className="font-heading text-base font-bold">Password reset</h1>
-        <p className="text-body text-[13px]">Your password has been changed.</p>
+        <p className="text-[13px] text-body">Your password has been changed.</p>
         <Button asChild variant="plum" size="xl" className="mt-2 w-full">
           <Link href="/signup">
             Log In <ArrowRight aria-hidden="true" />

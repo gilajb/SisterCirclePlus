@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 export function Wordmark({ href = "/", className }) {
   return (
-    <Link href={href} className={cn("font-heading text-primary text-base font-bold", className)}>
+    <Link href={href} className={cn("font-heading text-base font-bold text-primary", className)}>
       SisterCircle+
     </Link>
   );

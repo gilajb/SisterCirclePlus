@@ -27,10 +27,34 @@ export const DOCTOR_TIERS = [
 ];
 
 export const INSTITUTIONAL_TIERS = [
-  { key: "pilot", name: "Pilot / Small", cohort: "≤500", annual: "Up to $1,250", perBeneficiary: "$2.49" },
-  { key: "mid", name: "Mid-size", cohort: "501–2,000", annual: "$1,000 – $4,000", perBeneficiary: "$1.99" },
-  { key: "large", name: "Large / Multi-site", cohort: "2,001–10,000", annual: "$3,000 – $15,000, negotiable", perBeneficiary: "$1.49" },
-  { key: "national", name: "National / Gov", cohort: "10,000+", annual: "Custom, sales-led", perBeneficiary: "Sub-$0.99" },
+  {
+    key: "pilot",
+    name: "Pilot / Small",
+    cohort: "≤500",
+    annual: "Up to $1,250",
+    perBeneficiary: "$2.49",
+  },
+  {
+    key: "mid",
+    name: "Mid-size",
+    cohort: "501–2,000",
+    annual: "$1,000 – $4,000",
+    perBeneficiary: "$1.99",
+  },
+  {
+    key: "large",
+    name: "Large / Multi-site",
+    cohort: "2,001–10,000",
+    annual: "$3,000 – $15,000, negotiable",
+    perBeneficiary: "$1.49",
+  },
+  {
+    key: "national",
+    name: "National / Gov",
+    cohort: "10,000+",
+    annual: "Custom, sales-led",
+    perBeneficiary: "Sub-$0.99",
+  },
 ];
 
 /**

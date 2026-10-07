@@ -11,7 +11,7 @@ export function PainLineChart({ submissions, className }) {
   const slice = recent(submissions);
   const points = slice.map((s) => s.pain_level ?? 0);
   const labels = slice.map((s) =>
-    new Date(s.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" })
+    new Date(s.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short" }),
   );
   // Pad to at least 2 points so the path is valid
   while (points.length < 2) {
@@ -104,18 +104,15 @@ export function PainBarChart({ submissions, className }) {
           <div key={i} className="flex h-full flex-1 flex-col items-center gap-1.5">
             <div className="flex w-full flex-1 items-end">
               <div
-                className={cn(
-                  "relative w-full rounded-t",
-                  isLatest ? "bg-mauve" : "bg-pink-light"
-                )}
+                className={cn("relative w-full rounded-t", isLatest ? "bg-mauve" : "bg-pink-light")}
                 style={{ height: `${Math.max(((s?.pain_level ?? 0) / PAIN_MAX) * 80, 4)}px` }}
               >
                 {isLatest ? (
-                  <span className="bg-primary absolute -top-2 left-1/2 size-2 -translate-x-1/2 rounded-full" />
+                  <span className="absolute -top-2 left-1/2 size-2 -translate-x-1/2 rounded-full bg-primary" />
                 ) : null}
               </div>
             </div>
-            <span className="text-muted-foreground text-[9px] uppercase">
+            <span className="text-[9px] text-muted-foreground uppercase">
               {s ? new Date(s.created_at).toLocaleDateString("en-GB", { weekday: "short" }) : "—"}
             </span>
           </div>

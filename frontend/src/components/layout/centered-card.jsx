@@ -6,8 +6,8 @@ export function CenteredCard({ className, children }) {
     <main className="flex min-h-screen items-center justify-center p-6">
       <div
         className={cn(
-          "bg-card flex w-full max-w-[420px] flex-col gap-3.5 rounded-2xl border px-8 py-9 text-center",
-          className
+          "flex w-full max-w-[420px] flex-col gap-3.5 rounded-2xl border bg-card px-8 py-9 text-center",
+          className,
         )}
       >
         {children}

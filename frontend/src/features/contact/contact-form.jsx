@@ -65,7 +65,7 @@ export function ContactForm() {
     return (
       <div
         role="status"
-        className="border-success-border bg-success-bg text-success flex items-start gap-2.5 rounded-[10px] border p-5"
+        className="flex items-start gap-2.5 rounded-[10px] border border-success-border bg-success-bg p-5 text-success"
       >
         <Check className="mt-0.5 size-[18px] shrink-0" aria-hidden="true" />
         <div>

@@ -81,20 +81,20 @@ function FeatureCard({ icon: Icon, tone, title, desc, highlight }) {
   return (
     <div
       className={cn(
-        "bg-card flex flex-col gap-3.5 rounded-2xl border p-7",
-        highlight && "border-primary border-[1.5px]"
+        "flex flex-col gap-3.5 rounded-2xl border bg-card p-7",
+        highlight && "border-[1.5px] border-primary",
       )}
     >
       <div
         className={cn(
           "flex size-11 items-center justify-center rounded-[10px]",
-          tone === "gold" ? "bg-gold-light text-gold-dark" : "bg-pink-pale text-primary"
+          tone === "gold" ? "bg-gold-light text-gold-dark" : "bg-pink-pale text-primary",
         )}
       >
         <Icon className="size-5" aria-hidden="true" />
       </div>
       <h3 className="font-heading text-[17px] font-bold">{title}</h3>
-      <p className="text-body text-sm leading-[1.65]">{desc}</p>
+      <p className="text-sm leading-[1.65] text-body">{desc}</p>
     </div>
   );
 }
@@ -108,7 +108,7 @@ export default function LandingPage() {
         {/* Hero */}
         <section className="mx-auto flex max-w-[1200px] flex-col items-center gap-8 px-6 py-10 md:flex-row md:gap-12 md:px-12 md:py-[60px]">
           <div className="flex flex-1 flex-col gap-5">
-            <span className="bg-pink-pale text-primary w-fit rounded-full px-3.5 py-[5px] text-[13px] font-semibold">
+            <span className="w-fit rounded-full bg-pink-pale px-3.5 py-[5px] text-[13px] font-semibold text-primary">
               <span className="md:hidden">Sister-Physician Led Care</span>
               <span className="hidden md:inline">Welcome to SisterCircle+</span>
             </span>
@@ -116,10 +116,10 @@ export default function LandingPage() {
               Your body has been speaking. It's time{" "}
               <em className="text-primary">someone listened.</em>
             </h1>
-            <p className="text-body max-w-[420px] text-base leading-[1.7]">
+            <p className="max-w-[420px] text-base leading-[1.7] text-body">
               <span className="md:hidden">
-                Expert medical diagnostics and compassionate guidance for women, powered by
-                clinical data and communal warmth.
+                Expert medical diagnostics and compassionate guidance for women, powered by clinical
+                data and communal warmth.
               </span>
               <span className="hidden md:inline">
                 We provide clinical warmth through sophisticated AI diagnostics tailored
@@ -136,7 +136,7 @@ export default function LandingPage() {
                 asChild
                 variant="outline"
                 size="xl"
-                className="border-foreground rounded-lg border-[1.5px] bg-transparent px-7 font-semibold"
+                className="rounded-lg border-[1.5px] border-foreground bg-transparent px-7 font-semibold"
               >
                 <Link href="/signup?type=chw">I'm an Institution</Link>
               </Button>
@@ -155,8 +155,8 @@ export default function LandingPage() {
         {/* Trust strip */}
         <ul className="flex flex-wrap justify-center gap-x-5 gap-y-3 bg-[#efefed] px-6 py-4 md:gap-x-[60px] md:px-12">
           {TRUST_POINTS.map(({ icon: Icon, label }) => (
-            <li key={label} className="text-body flex items-center gap-2 text-[13px] font-medium">
-              <Icon className="text-plum size-4" aria-hidden="true" />
+            <li key={label} className="flex items-center gap-2 text-[13px] font-medium text-body">
+              <Icon className="size-4 text-plum" aria-hidden="true" />
               {label}
             </li>
           ))}
@@ -165,14 +165,14 @@ export default function LandingPage() {
         {/* Why SisterCircle+ */}
         <section id="why-sistercircle" className="scroll-mt-20 px-6 py-14 md:px-12 md:py-[72px]">
           <div className="mx-auto max-w-[1100px]">
-            <h2 className="font-heading mb-2 text-center text-2xl font-extrabold md:text-[34px]">
+            <h2 className="mb-2 text-center font-heading text-2xl font-extrabold md:text-[34px]">
               <span className="md:hidden">Designed for Dignity</span>
               <span className="hidden md:inline">Why SisterCircle+?</span>
             </h2>
-            <p className="text-muted-foreground mb-8 text-center text-sm md:hidden">
+            <p className="mb-8 text-center text-sm text-muted-foreground md:hidden">
               Modern healthcare that feels like family.
             </p>
-            <div className="bg-primary mx-auto mb-8 h-[3px] w-10 md:mb-12" aria-hidden="true" />
+            <div className="mx-auto mb-8 h-[3px] w-10 bg-primary md:mb-12" aria-hidden="true" />
             <div className="grid gap-5 md:hidden">
               {FEATURES_PHONE.map((card) => (
                 <FeatureCard key={card.title} {...card} />
@@ -189,7 +189,7 @@ export default function LandingPage() {
         {/* Founder story — phone only */}
         <section className="bg-mauve px-6 py-12 md:hidden">
           <div
-            className="font-heading text-pink-light mb-4 text-[64px] leading-none font-extrabold"
+            className="mb-4 font-heading text-[64px] leading-none font-extrabold text-pink-light"
             aria-hidden="true"
           >
             99
@@ -203,21 +203,21 @@ export default function LandingPage() {
           </blockquote>
           <div className="mt-5 flex items-center gap-3">
             {/* Initials placeholder — swap for Joy's photo once we have one */}
-            <div className="bg-pink-light text-mauve flex size-9 items-center justify-center rounded-full text-sm font-bold">
+            <div className="flex size-9 items-center justify-center rounded-full bg-pink-light text-sm font-bold text-mauve">
               JB
             </div>
             <div>
               <div className="text-sm font-bold text-white">Joy Chepkorir Bett</div>
-              <div className="text-pink-light text-[13px]">Founder, SisterCircle+</div>
+              <div className="text-[13px] text-pink-light">Founder, SisterCircle+</div>
             </div>
           </div>
         </section>
 
         {/* Start prompt — phone only */}
         <section className="px-6 py-8 md:hidden">
-          <div className="bg-card rounded-2xl border p-6">
+          <div className="rounded-2xl border bg-card p-6">
             <span className="text-sm font-semibold">Ready when you are</span>
-            <p className="text-body mt-2.5 text-sm">
+            <p className="mt-2.5 text-sm text-body">
               Start your own symptom check — free, and just a few minutes.
             </p>
           </div>
@@ -237,15 +237,15 @@ export default function LandingPage() {
               <h2 className="font-heading text-[34px] font-extrabold">
                 The SisterCircle Experience
               </h2>
-              <p className="text-body text-base leading-[1.7]">
+              <p className="text-base leading-[1.7] text-body">
                 We bridge the gap between high-utility medical diagnostics and a supportive
                 community space. It's not just about data; it's about being heard by a
                 "physician-sister."
               </p>
               <ul className="flex flex-col gap-3.5">
                 {EXPERIENCE_POINTS.map((item) => (
-                  <li key={item} className="text-body flex items-center gap-3 text-[15px]">
-                    <span className="border-primary text-primary flex size-[22px] shrink-0 items-center justify-center rounded-full border-2">
+                  <li key={item} className="flex items-center gap-3 text-[15px] text-body">
+                    <span className="flex size-[22px] shrink-0 items-center justify-center rounded-full border-2 border-primary text-primary">
                       <Check className="size-3" strokeWidth={3} aria-hidden="true" />
                     </span>
                     {item}

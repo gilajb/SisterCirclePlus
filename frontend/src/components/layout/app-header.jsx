@@ -20,7 +20,7 @@ export function AppHeader({ mobileStart, mobileTitle, mobileEnd }) {
   const pathname = usePathname();
 
   return (
-    <header className="bg-card md:bg-background sticky top-0 z-50 border-b">
+    <header className="sticky top-0 z-50 border-b bg-card md:bg-background">
       <div className="flex min-h-14 items-center justify-between px-3 py-2 md:hidden">
         <div className="flex size-11 items-center justify-center">{mobileStart}</div>
         <div className="font-heading text-[17px] font-bold">
@@ -40,8 +40,8 @@ export function AppHeader({ mobileStart, mobileTitle, mobileEnd }) {
                 href={link.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "hover:text-primary border-b-2 border-transparent pb-0.5 text-[15px]",
-                  active && "border-primary font-semibold"
+                  "border-b-2 border-transparent pb-0.5 text-[15px] hover:text-primary",
+                  active && "border-primary font-semibold",
                 )}
               >
                 {link.label}
@@ -51,7 +51,7 @@ export function AppHeader({ mobileStart, mobileTitle, mobileEnd }) {
           <Link
             href="/settings"
             aria-label="Account settings"
-            className="text-plum hover:text-primary flex size-9 items-center justify-center rounded-full"
+            className="flex size-9 items-center justify-center rounded-full text-plum hover:text-primary"
           >
             <CircleUserRound className="size-7" strokeWidth={1.5} aria-hidden="true" />
           </Link>

@@ -12,7 +12,7 @@ export function TextInput({ label, hint, value, onChange, ...props }) {
     <div className="flex flex-col gap-1.5">
       <Label htmlFor={id}>{label}</Label>
       <Input id={id} value={value} onChange={(e) => onChange(e.target.value)} {...props} />
-      {hint ? <p className="text-muted-foreground text-xs leading-normal italic">{hint}</p> : null}
+      {hint ? <p className="text-xs leading-normal text-muted-foreground italic">{hint}</p> : null}
     </div>
   );
 }
@@ -45,7 +45,7 @@ export function PasswordInput({ label, value, onChange, ...props }) {
           onClick={() => setShow((s) => !s)}
           aria-label={show ? "Hide password" : "Show password"}
           aria-pressed={show}
-          className="text-muted-foreground hover:text-foreground absolute top-1/2 right-1 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md"
+          className="absolute top-1/2 right-1 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-md text-muted-foreground hover:text-foreground"
         >
           {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
         </button>
@@ -74,15 +74,15 @@ export function TermsCheckbox({ checked, onChange }) {
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="accent-plum mt-[3px] size-4 shrink-0 cursor-pointer"
+        className="mt-[3px] size-4 shrink-0 cursor-pointer accent-plum"
       />
-      <span className="text-body text-[13px] leading-normal">
+      <span className="text-[13px] leading-normal text-body">
         I agree to the{" "}
-        <Link href="/terms" target="_blank" className="text-mauve font-semibold underline">
+        <Link href="/terms" target="_blank" className="font-semibold text-mauve underline">
           Terms of Service
         </Link>{" "}
         and{" "}
-        <Link href="/privacy" target="_blank" className="text-mauve font-semibold underline">
+        <Link href="/privacy" target="_blank" className="font-semibold text-mauve underline">
           Privacy Policy
         </Link>
         .

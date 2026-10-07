@@ -50,7 +50,7 @@ export function GuardianConsent() {
         <h1 className="font-heading text-lg font-bold">
           {resolvedDecision === "approve" ? "Consent recorded" : "Decision recorded"}
         </h1>
-        <p className="text-body text-sm">
+        <p className="text-sm text-body">
           Thank you — your response has been saved. Questions about this request can be sent to
           sistercircleplus@protonmail.com.
         </p>
@@ -62,21 +62,20 @@ export function GuardianConsent() {
 
   return (
     <>
-      <KeyRound className="text-gold mx-auto size-8" aria-hidden="true" />
+      <KeyRound className="mx-auto size-8 text-gold" aria-hidden="true" />
       <h1 className="font-heading text-lg font-bold">Guardian Consent Request</h1>
-      <p className="text-body text-sm leading-relaxed">
+      <p className="text-sm leading-relaxed text-body">
         A SisterCircle+ account was created using your email as the parent/guardian contact for a
-        young person under 16. SisterCircle+ provides confidential menstrual and reproductive
-        health triage support.
+        young person under 16. SisterCircle+ provides confidential menstrual and reproductive health
+        triage support.
       </p>
-      <p className="text-muted-foreground text-[13px] leading-relaxed">
-        They already have access to triage support regardless of your decision here — your
-        response affects their account's longer-term standing, not whether they can get help right
-        now.
+      <p className="text-[13px] leading-relaxed text-muted-foreground">
+        They already have access to triage support regardless of your decision here — your response
+        affects their account's longer-term standing, not whether they can get help right now.
       </p>
       <ErrorBanner message={error} />
       {hasPrefill ? (
-        <p className="text-gold -mt-1.5 text-xs font-semibold">
+        <p className="-mt-1.5 text-xs font-semibold text-gold">
           You clicked "{prefilledDecision === "approve" ? "Approve" : "Decline"}" in the email —
           confirm below to record it.
         </p>
@@ -88,8 +87,8 @@ export function GuardianConsent() {
           onClick={() => handleDecision("decline")}
           disabled={submitting}
           className={cn(
-            "bg-card text-body flex-1 rounded-lg text-sm font-semibold",
-            prefilledDecision === "decline" && "border-gold-border bg-gold-light"
+            "flex-1 rounded-lg bg-card text-sm font-semibold text-body",
+            prefilledDecision === "decline" && "border-gold-border bg-gold-light",
           )}
         >
           Decline

@@ -11,7 +11,7 @@ const out = path.join(root, "compare");
 mkdirSync(out, { recursive: true });
 
 const names = readdirSync(path.join(root, b)).filter(
-  (f) => f.endsWith(".png") && new RegExp(filter).test(f)
+  (f) => f.endsWith(".png") && new RegExp(filter).test(f),
 );
 const dataUri = (file) => `data:image/png;base64,${readFileSync(file).toString("base64")}`;
 

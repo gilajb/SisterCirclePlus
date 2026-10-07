@@ -116,7 +116,7 @@ export function Results() {
         className={cn(
           "bg-foreground hover:bg-foreground/85 disabled:opacity-100",
           saved && "bg-success",
-          className
+          className,
         )}
       >
         {saved ? (
@@ -163,14 +163,14 @@ export function Results() {
         <section
           className={cn(
             "mb-6 flex flex-col gap-4 rounded-xl border border-l-4 p-5 md:mb-10 md:flex-row md:items-center md:justify-between md:px-7 md:py-6",
-            risk.banner
+            risk.banner,
           )}
         >
           <div className="flex flex-col gap-1.5">
             <p
               className={cn(
                 "flex items-center gap-2 text-[11px] font-bold tracking-[1.2px] uppercase",
-                risk.text
+                risk.text,
               )}
             >
               <RiskIcon className="size-4" aria-hidden="true" />
@@ -179,24 +179,24 @@ export function Results() {
             <h1 className={cn("font-heading text-[26px] font-extrabold md:text-[28px]", risk.text)}>
               {risk.title}
             </h1>
-            <p className="text-body text-[15px]">{risk.subtitle}</p>
+            <p className="text-[15px] text-body">{risk.subtitle}</p>
           </div>
           <div className="hidden shrink-0 gap-3 md:flex">
             <Button
               variant="outline"
               size="xl"
               onClick={() => downloadReport(result)}
-              className="bg-card h-11 rounded-lg px-5 text-sm font-semibold"
+              className="h-11 rounded-lg bg-card px-5 text-sm font-semibold"
             >
               <Download aria-hidden="true" /> Report
             </Button>
             {primaryAction(
               "h-11 min-w-[220px] rounded-lg px-5 text-sm font-semibold",
-              "Save to My Health Dashboard"
+              "Save to My Health Dashboard",
             )}
           </div>
           {saveError ? (
-            <p role="alert" className="text-danger text-[13px]">
+            <p role="alert" className="text-[13px] text-danger">
               {saveError}
             </p>
           ) : null}
@@ -206,15 +206,15 @@ export function Results() {
           {/* Conditions */}
           <section className="flex w-full flex-1 flex-col gap-4">
             <div className="mb-1 flex items-center justify-between">
-              <h2 className="text-muted-foreground md:font-heading md:text-foreground text-[11px] font-bold tracking-[1px] uppercase md:text-xl md:tracking-normal md:normal-case">
+              <h2 className="text-[11px] font-bold tracking-[1px] text-muted-foreground uppercase md:font-heading md:text-xl md:tracking-normal md:text-foreground md:normal-case">
                 <span className="md:hidden">Potential indicators</span>
                 <span className="hidden md:inline">Potential Insights</span>
               </h2>
-              <span className="text-primary text-[13px] font-semibold md:hidden">
+              <span className="text-[13px] font-semibold text-primary md:hidden">
                 {conditions.length} Result{conditions.length !== 1 ? "s" : ""} Found
               </span>
               <ClipboardList
-                className="text-muted-foreground hidden size-[18px] md:block"
+                className="hidden size-[18px] text-muted-foreground md:block"
                 aria-hidden="true"
               />
             </div>
@@ -225,8 +225,8 @@ export function Results() {
 
           {/* What to do next */}
           {nextSteps.length > 0 ? (
-            <section className="bg-pink-pale md:border-gold-border md:bg-gold-light flex w-full flex-col gap-4 rounded-2xl p-6 md:w-80 md:shrink-0 md:gap-5 md:border md:p-7">
-              <h2 className="font-heading text-mauve md:text-foreground flex items-center gap-2.5 text-lg font-bold">
+            <section className="flex w-full flex-col gap-4 rounded-2xl bg-pink-pale p-6 md:w-80 md:shrink-0 md:gap-5 md:border md:border-gold-border md:bg-gold-light md:p-7">
+              <h2 className="flex items-center gap-2.5 font-heading text-lg font-bold text-mauve md:text-foreground">
                 <ListChecks className="hidden size-[18px] md:block" aria-hidden="true" />
                 <span className="md:hidden">Next Steps</span>
                 <span className="hidden md:inline">What to do next</span>
@@ -236,11 +236,11 @@ export function Results() {
                   <li key={i} className="flex gap-2.5 md:gap-3.5">
                     <span
                       aria-hidden="true"
-                      className="text-mauve md:text-muted-foreground mt-px min-w-4 text-[13px] font-bold"
+                      className="mt-px min-w-4 text-[13px] font-bold text-mauve md:text-muted-foreground"
                     >
                       {i + 1}
                     </span>
-                    <span className="text-body text-sm leading-relaxed md:text-[13px]">{step}</span>
+                    <span className="text-sm leading-relaxed text-body md:text-[13px]">{step}</span>
                   </li>
                 ))}
               </ol>
@@ -248,7 +248,7 @@ export function Results() {
               <Button
                 size="xl"
                 disabled
-                className="bg-foreground mt-1 hidden text-sm font-semibold md:inline-flex"
+                className="mt-1 hidden bg-foreground text-sm font-semibold md:inline-flex"
               >
                 Book Tele-health Consultation <ArrowRight aria-hidden="true" />
               </Button>
@@ -258,12 +258,12 @@ export function Results() {
 
         {/* Team note */}
         {teamNote ? (
-          <section className="bg-card mt-6 flex flex-col rounded-xl border p-5 md:mt-12 md:flex-row md:items-center md:gap-12 md:rounded-none md:border-0 md:bg-transparent md:p-0">
+          <section className="mt-6 flex flex-col rounded-xl border bg-card p-5 md:mt-12 md:flex-row md:items-center md:gap-12 md:rounded-none md:border-0 md:bg-transparent md:p-0">
             <div className="flex-1">
-              <h2 className="font-heading text-mauve md:text-foreground mb-2.5 text-base font-bold md:mb-4 md:text-2xl">
+              <h2 className="mb-2.5 font-heading text-base font-bold text-mauve md:mb-4 md:text-2xl md:text-foreground">
                 A note from your SisterCircle+ team
               </h2>
-              <p className="text-body text-sm leading-[1.7] md:text-[15px] md:leading-[1.75]">
+              <p className="text-sm leading-[1.7] text-body md:text-[15px] md:leading-[1.75]">
                 {teamNote}
               </p>
             </div>
@@ -277,7 +277,7 @@ export function Results() {
           </section>
         ) : null}
 
-        <p className="text-muted-foreground mx-auto mt-6 max-w-[600px] text-center text-xs leading-relaxed italic md:mt-12">
+        <p className="mx-auto mt-6 max-w-[600px] text-center text-xs leading-relaxed text-muted-foreground italic md:mt-12">
           Disclaimer: This AI-generated analysis is intended for informational purposes only and
           does not constitute medical advice, diagnosis, or treatment. Always seek the advice of
           your physician or other qualified health providers with any questions you may have
@@ -288,9 +288,9 @@ export function Results() {
       <AppFooter />
 
       {/* Actions fixed to the bottom of the screen — phones only */}
-      <div className="bg-card fixed inset-x-0 bottom-0 z-40 flex flex-col gap-2 border-t px-5 py-4 md:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col gap-2 border-t bg-card px-5 py-4 md:hidden">
         {saveError ? (
-          <p role="alert" className="text-danger text-center text-xs">
+          <p role="alert" className="text-center text-xs text-danger">
             {saveError}
           </p>
         ) : null}
@@ -299,14 +299,14 @@ export function Results() {
             "h-[52px] flex-1 font-semibold",
             <>
               <ClipboardList aria-hidden="true" /> Save to Dashboard
-            </>
+            </>,
           )}
           <Button
             variant="outline"
             size="xl"
             onClick={() => downloadReport(result)}
             aria-label="Download report"
-            className="border-mauve bg-card text-mauve size-[52px] border-[1.5px] px-0"
+            className="size-[52px] border-[1.5px] border-mauve bg-card px-0 text-mauve"
           >
             <Download aria-hidden="true" />
           </Button>

@@ -25,8 +25,8 @@ export default async function PricingPage() {
 
       <main className="mx-auto max-w-[1100px] px-6 pt-10 pb-20 md:px-12 md:pt-14 md:pb-24">
         <div className="mb-10 text-center md:mb-14">
-          <h1 className="font-heading mb-3 text-[28px] font-extrabold md:text-[38px]">Pricing</h1>
-          <p className="text-body mx-auto max-w-[560px] text-[15px] leading-[1.7]">
+          <h1 className="mb-3 font-heading text-[28px] font-extrabold md:text-[38px]">Pricing</h1>
+          <p className="mx-auto max-w-[560px] text-[15px] leading-[1.7] text-body">
             Clear, tiered access for the people we serve, the clinicians they reach, and the
             institutions that bring us to entire communities.
           </p>
@@ -41,7 +41,7 @@ export default async function PricingPage() {
 
         <section className="mb-14 md:mb-[72px]">
           <SectionTitle>For Doctors &amp; Clinics</SectionTitle>
-          <p className="text-muted-foreground mt-2 mb-5 text-[13px]">
+          <p className="mt-2 mb-5 text-[13px] text-muted-foreground">
             A flat platform-access subscription — never per-patient or referral-commission based.
           </p>
           <DoctorTiers />
@@ -49,7 +49,7 @@ export default async function PricingPage() {
 
         <section>
           <SectionTitle>For NGOs, Schools &amp; CHW Programs</SectionTitle>
-          <p className="text-muted-foreground mt-2 mb-5 max-w-[640px] text-[13px] leading-relaxed">
+          <p className="mt-2 mb-5 max-w-[640px] text-[13px] leading-relaxed text-muted-foreground">
             Priced per-beneficiary/year within a negotiated range. Every institutional tier bundles
             unlimited free/discounted cohort access, bulk CHW code generation and a management
             dashboard, aggregate anonymized reporting, priority CHW onboarding, and a co-branding
@@ -64,7 +64,7 @@ export default async function PricingPage() {
                     <th
                       key={heading}
                       scope="col"
-                      className="text-primary border-b px-3 py-2.5 text-left text-[11px] font-bold tracking-[0.5px] uppercase"
+                      className="border-b px-3 py-2.5 text-left text-[11px] font-bold tracking-[0.5px] text-primary uppercase"
                     >
                       {heading}
                     </th>
@@ -77,9 +77,9 @@ export default async function PricingPage() {
                     <th scope="row" className="border-b px-3 py-3.5 text-left font-semibold">
                       {row.name}
                     </th>
-                    <td className="text-body border-b px-3 py-3.5">{row.cohort}</td>
-                    <td className="text-body border-b px-3 py-3.5">{row.annual}</td>
-                    <td className="text-body border-b px-3 py-3.5">{row.perBeneficiary}</td>
+                    <td className="border-b px-3 py-3.5 text-body">{row.cohort}</td>
+                    <td className="border-b px-3 py-3.5 text-body">{row.annual}</td>
+                    <td className="border-b px-3 py-3.5 text-body">{row.perBeneficiary}</td>
                   </tr>
                 ))}
               </tbody>
@@ -90,7 +90,7 @@ export default async function PricingPage() {
               Hospital / Network "Contact Sales" button above. */}
           <div
             id="institutional-lead"
-            className="bg-card max-w-[560px] scroll-mt-6 rounded-2xl border p-6 md:p-8"
+            className="max-w-[560px] scroll-mt-6 rounded-2xl border bg-card p-6 md:p-8"
           >
             <LeadForm />
           </div>

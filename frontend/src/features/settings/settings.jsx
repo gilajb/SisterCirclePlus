@@ -33,7 +33,7 @@ function PasswordField({ label, value, onChange, autoComplete }) {
           autoComplete={autoComplete}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="border-border h-[42px] rounded-lg px-3.5 text-sm"
+          className="h-[42px] rounded-lg border-border px-3.5 text-sm"
         />
       )}
     </Field>
@@ -41,7 +41,7 @@ function PasswordField({ label, value, onChange, autoComplete }) {
 }
 
 function AccountDetails({ me }) {
-  if (!me) return <p className="text-muted-foreground text-[13px]">Loading…</p>;
+  if (!me) return <p className="text-[13px] text-muted-foreground">Loading…</p>;
   const rows = [
     ["Username", me.username],
     ["Email", me.email],
@@ -90,7 +90,7 @@ function ChangePassword() {
 
   if (state === "done") {
     return (
-      <p className="text-success flex items-center gap-1.5 text-[13px] font-semibold">
+      <p className="flex items-center gap-1.5 text-[13px] font-semibold text-success">
         <Check className="size-4" aria-hidden="true" /> Your password has been changed.
       </p>
     );
@@ -117,7 +117,7 @@ function ChangePassword() {
         autoComplete="new-password"
       />
       {error ? (
-        <p role="alert" className="text-danger text-xs">
+        <p role="alert" className="text-xs text-danger">
           {error}
         </p>
       ) : null}
@@ -180,12 +180,12 @@ function ExportData({ username }) {
         )}
       </Button>
       {state === "done" ? (
-        <p className="text-success mt-2.5 flex items-center gap-1 text-xs">
+        <p className="mt-2.5 flex items-center gap-1 text-xs text-success">
           <Check className="size-3.5" aria-hidden="true" /> Downloaded
         </p>
       ) : null}
       {state === "error" ? (
-        <p role="alert" className="text-danger mt-2.5 text-xs">
+        <p role="alert" className="mt-2.5 text-xs text-danger">
           Couldn't export your data right now. Please try again.
         </p>
       ) : null}
@@ -217,7 +217,7 @@ export function Settings() {
       <CenteredCard className="py-10">
         <Check className="mx-auto size-8" aria-hidden="true" />
         <h1 className="font-heading text-lg font-bold">Your account has been deleted</h1>
-        <p className="text-body text-sm">
+        <p className="text-sm text-body">
           Your account and all associated data have been permanently removed.
         </p>
         <Button asChild variant="mauve" size="xl" className="mt-2 w-full">
@@ -257,7 +257,7 @@ export function Settings() {
 
         <Panel as="section">
           <PanelTitle className="mb-2">Your Data</PanelTitle>
-          <p className="text-body mb-4 text-[13px] leading-relaxed">
+          <p className="mb-4 text-[13px] leading-relaxed text-body">
             Download a copy of your account details and every symptom check you've submitted, as a
             JSON file.
           </p>
@@ -265,16 +265,16 @@ export function Settings() {
         </Panel>
 
         <Panel as="section" className="border-danger-border">
-          <PanelTitle className="text-danger mb-2">Danger Zone</PanelTitle>
-          <p className="text-body mb-4 text-[13px] leading-relaxed">
-            Permanently delete your account and every symptom check you've submitted. This cannot
-            be undone.
+          <PanelTitle className="mb-2 text-danger">Danger Zone</PanelTitle>
+          <p className="mb-4 text-[13px] leading-relaxed text-body">
+            Permanently delete your account and every symptom check you've submitted. This cannot be
+            undone.
           </p>
           <Button
             variant="outline"
             size="xl"
             onClick={() => setShowDeleteDialog(true)}
-            className="border-danger bg-card text-danger hover:bg-danger-bg hover:text-danger h-[42px] rounded-lg px-5 text-sm"
+            className="h-[42px] rounded-lg border-danger bg-card px-5 text-sm text-danger hover:bg-danger-bg hover:text-danger"
           >
             Delete My Account
           </Button>

@@ -28,7 +28,7 @@ export function SegmentGroup({ name, options, value, onChange, className }) {
           key={option}
           className={cn(
             choiceBase,
-            "has-checked:text-primary flex-1 px-2 py-3 text-center text-sm font-medium whitespace-nowrap has-checked:font-bold"
+            "flex-1 px-2 py-3 text-center text-sm font-medium whitespace-nowrap has-checked:font-bold has-checked:text-primary",
           )}
         >
           <input
@@ -53,7 +53,10 @@ export function RadioCards({ name, options, value, onChange }) {
       {options.map((option) => (
         <label
           key={option.value}
-          className={cn(choiceBase, "group flex flex-1 items-center gap-3 px-4 py-3.5 md:px-5 md:py-4")}
+          className={cn(
+            choiceBase,
+            "group flex flex-1 items-center gap-3 px-4 py-3.5 md:px-5 md:py-4",
+          )}
         >
           <input
             type="radio"
@@ -65,9 +68,9 @@ export function RadioCards({ name, options, value, onChange }) {
           />
           <span
             aria-hidden="true"
-            className="border-input group-has-checked:border-primary flex size-5 shrink-0 items-center justify-center rounded-full border-2"
+            className="flex size-5 shrink-0 items-center justify-center rounded-full border-2 border-input group-has-checked:border-primary"
           >
-            <span className="bg-primary hidden size-2.5 rounded-full group-has-checked:block" />
+            <span className="hidden size-2.5 rounded-full bg-primary group-has-checked:block" />
           </span>
           <span className="text-[15px] font-medium">{option.label}</span>
         </label>
@@ -87,7 +90,7 @@ export function ChipGrid({ options, selected, onToggle }) {
             key={option}
             className={cn(
               choiceBase,
-              "text-body has-checked:text-primary flex items-center justify-center gap-1.5 px-3 py-2.5 text-center text-[13px] has-checked:font-semibold"
+              "flex items-center justify-center gap-1.5 px-3 py-2.5 text-center text-[13px] text-body has-checked:font-semibold has-checked:text-primary",
             )}
           >
             <input
@@ -96,7 +99,9 @@ export function ChipGrid({ options, selected, onToggle }) {
               onChange={() => onToggle(option)}
               className="sr-only"
             />
-            {checked ? <Check className="size-3 shrink-0" strokeWidth={3} aria-hidden="true" /> : null}
+            {checked ? (
+              <Check className="size-3 shrink-0" strokeWidth={3} aria-hidden="true" />
+            ) : null}
             {option}
           </label>
         );
@@ -111,9 +116,9 @@ export function PainSlider({ value, onChange }) {
   return (
     <div>
       <div className="mb-2 flex justify-between">
-        <span className="text-muted-foreground text-xs">No pain</span>
-        <span className="text-primary text-sm font-bold">{value}/10</span>
-        <span className="text-muted-foreground text-xs">Severe</span>
+        <span className="text-xs text-muted-foreground">No pain</span>
+        <span className="text-sm font-bold text-primary">{value}/10</span>
+        <span className="text-xs text-muted-foreground">Severe</span>
       </div>
       <input
         type="range"
@@ -122,7 +127,7 @@ export function PainSlider({ value, onChange }) {
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         aria-label="Pain severity from 0 to 10"
-        className="accent-primary h-6 w-full cursor-pointer"
+        className="h-6 w-full cursor-pointer accent-primary"
       />
       <div className="mt-1 flex justify-between" aria-hidden="true">
         {PAIN_SCALE.map((n) => (
@@ -131,7 +136,7 @@ export function PainSlider({ value, onChange }) {
             className={cn(
               "text-[10px]",
               n <= value ? "text-primary" : "text-muted-foreground",
-              n === value && "font-bold"
+              n === value && "font-bold",
             )}
           >
             {n}
@@ -144,9 +149,9 @@ export function PainSlider({ value, onChange }) {
 
 export function InfoBox({ children }) {
   return (
-    <div className="border-gold-border border-l-gold bg-gold-light flex items-start gap-2.5 rounded-lg border border-l-[3px] px-4 py-3.5">
-      <Info className="text-gold mt-0.5 size-4 shrink-0" aria-hidden="true" />
-      <p className="text-gold-dark text-[13px] leading-relaxed italic">{children}</p>
+    <div className="flex items-start gap-2.5 rounded-lg border border-l-[3px] border-gold-border border-l-gold bg-gold-light px-4 py-3.5">
+      <Info className="mt-0.5 size-4 shrink-0 text-gold" aria-hidden="true" />
+      <p className="text-[13px] leading-relaxed text-gold-dark italic">{children}</p>
     </div>
   );
 }
@@ -154,13 +159,13 @@ export function InfoBox({ children }) {
 export function ReviewSection({ title, rows }) {
   return (
     <section>
-      <h3 className="text-muted-foreground mb-1 text-[13px] font-bold tracking-[1px] uppercase">
+      <h3 className="mb-1 text-[13px] font-bold tracking-[1px] text-muted-foreground uppercase">
         {title}
       </h3>
       <dl>
         {rows.map(([label, value]) => (
           <div key={label} className="flex items-start justify-between gap-4 border-b py-3.5">
-            <dt className="text-muted-foreground shrink-0 text-sm">{label}</dt>
+            <dt className="shrink-0 text-sm text-muted-foreground">{label}</dt>
             <dd className="text-right text-sm font-semibold">{value || "—"}</dd>
           </div>
         ))}

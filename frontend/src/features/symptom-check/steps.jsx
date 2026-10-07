@@ -157,8 +157,8 @@ export function CycleStep({ form, set }) {
         />
       </Group>
       <InfoBox>
-        "Heavy bleeding that soaks through a pad in under an hour is a clinical signal worth
-        noting, Sister."
+        "Heavy bleeding that soaks through a pad in under an hour is a clinical signal worth noting,
+        Sister."
       </InfoBox>
     </>
   );
@@ -170,7 +170,7 @@ export function SymptomsStep({ form, set }) {
       "symptoms",
       form.symptoms.includes(symptom)
         ? form.symptoms.filter((s) => s !== symptom)
-        : [...form.symptoms, symptom]
+        : [...form.symptoms, symptom],
     );
 
   return (
@@ -205,7 +205,7 @@ export function SymptomsStep({ form, set }) {
 export function ReviewStep({ form }) {
   return (
     <>
-      <div className="bg-pink-pale text-primary flex items-start gap-2 rounded-[10px] px-5 py-4 text-sm">
+      <div className="flex items-start gap-2 rounded-[10px] bg-pink-pale px-5 py-4 text-sm text-primary">
         <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
         <span>
           Please review your information before submitting. You can go back to edit any section.
@@ -237,7 +237,7 @@ export function ReviewStep({ form }) {
           ...(form.otherSymptoms ? [["Additional Notes", form.otherSymptoms]] : []),
         ]}
       />
-      <p className="border-gold-border bg-gold-light text-gold-dark rounded-[10px] border px-5 py-4 text-[13px] leading-relaxed italic">
+      <p className="rounded-[10px] border border-gold-border bg-gold-light px-5 py-4 text-[13px] leading-relaxed text-gold-dark italic">
         By submitting, you confirm this information is accurate to the best of your knowledge.
         SisterCircle+ analysis is for informational purposes only and does not replace professional
         medical advice.

@@ -55,8 +55,8 @@ export function LeadForm() {
     return (
       <div role="status" className="py-5 text-center">
         <Check className="mx-auto mb-2.5 size-8" aria-hidden="true" />
-        <p className="font-heading mb-1.5 text-base font-bold">Thank you — we'll be in touch.</p>
-        <p className="text-body text-[13px]">
+        <p className="mb-1.5 font-heading text-base font-bold">Thank you — we'll be in touch.</p>
+        <p className="text-[13px] text-body">
           Our team reviews every institutional inquiry personally.
         </p>
       </div>
@@ -144,7 +144,7 @@ export function LeadForm() {
         )}
       </Field>
       {error ? (
-        <p role="alert" className="text-danger text-[13px]">
+        <p role="alert" className="text-[13px] text-danger">
           {error}
         </p>
       ) : null}

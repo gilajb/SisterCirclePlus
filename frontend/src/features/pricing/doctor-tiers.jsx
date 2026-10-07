@@ -40,19 +40,22 @@ export function DoctorTiers() {
   return (
     <>
       {error ? (
-        <p role="alert" className="text-danger mb-4 text-[13px]">
+        <p role="alert" className="mb-4 text-[13px] text-danger">
           {error}
         </p>
       ) : null}
       <div className="grid gap-5 md:grid-cols-3">
         {DOCTOR_TIERS.map((tier) => (
-          <article key={tier.key} className="bg-card flex flex-col gap-3.5 rounded-2xl border p-6">
+          <article key={tier.key} className="flex flex-col gap-3.5 rounded-2xl border bg-card p-6">
             <div>
               <h3 className="font-heading text-base font-bold">{tier.name}</h3>
-              <p className="font-heading text-mauve mt-1.5 mb-3.5 text-lg font-extrabold">
+              <p className="mt-1.5 mb-3.5 font-heading text-lg font-extrabold text-mauve">
                 {tier.price}
                 {tier.priceNote ? (
-                  <span className="text-muted-foreground text-xs font-medium"> {tier.priceNote}</span>
+                  <span className="text-xs font-medium text-muted-foreground">
+                    {" "}
+                    {tier.priceNote}
+                  </span>
                 ) : null}
               </p>
               <FeatureList items={tier.includes} className="gap-2" />
@@ -92,7 +95,7 @@ export function DoctorTiers() {
                 asChild
                 variant="outline"
                 size="xl"
-                className="border-gold-border bg-gold-light text-gold-dark hover:bg-gold-light/70 hover:text-gold-dark mt-auto h-11 text-sm"
+                className="mt-auto h-11 border-gold-border bg-gold-light text-sm text-gold-dark hover:bg-gold-light/70 hover:text-gold-dark"
               >
                 <a href="#institutional-lead">Contact Sales</a>
               </Button>

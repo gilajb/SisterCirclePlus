@@ -21,7 +21,7 @@ export function AuthGuard({ children }) {
   const hydrated = useSyncExternalStore(
     subscribe,
     () => true,
-    () => false
+    () => false,
   );
   const allowed = useSyncExternalStore(subscribe, isLoggedIn, () => false);
 

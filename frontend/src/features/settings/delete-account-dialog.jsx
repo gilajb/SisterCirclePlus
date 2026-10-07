@@ -39,10 +39,10 @@ export function DeleteAccountDialog({ open, username, onOpenChange, onDeleted })
     <Dialog open={open} onOpenChange={deleting ? undefined : onOpenChange}>
       <DialogContent showCloseButton={false} className="gap-4 rounded-2xl p-8 sm:max-w-[420px]">
         <DialogHeader>
-          <DialogTitle className="font-heading text-danger text-lg font-bold">
+          <DialogTitle className="font-heading text-lg font-bold text-danger">
             Delete your account?
           </DialogTitle>
-          <DialogDescription className="text-body text-sm leading-relaxed">
+          <DialogDescription className="text-sm leading-relaxed text-body">
             This permanently deletes <strong>{username}</strong>'s account and every symptom check
             you've ever submitted. This cannot be undone.
           </DialogDescription>
@@ -61,7 +61,7 @@ export function DeleteAccountDialog({ open, username, onOpenChange, onDeleted })
               onChange={(e) => setConfirmText(e.target.value)}
               placeholder={CONFIRM_PHRASE}
               autoComplete="off"
-              className="border-border h-11 rounded-lg text-sm"
+              className="h-11 rounded-lg border-border text-sm"
             />
           )}
         </Field>
@@ -72,7 +72,7 @@ export function DeleteAccountDialog({ open, username, onOpenChange, onDeleted })
             size="xl"
             onClick={() => onOpenChange(false)}
             disabled={deleting}
-            className="bg-card text-body h-11 flex-1 rounded-lg text-sm font-semibold"
+            className="h-11 flex-1 rounded-lg bg-card text-sm font-semibold text-body"
           >
             Cancel
           </Button>
@@ -80,7 +80,7 @@ export function DeleteAccountDialog({ open, username, onOpenChange, onDeleted })
             size="xl"
             onClick={handleDelete}
             disabled={!canDelete || deleting}
-            className="bg-danger hover:bg-danger/90 h-11 flex-1 rounded-lg text-sm"
+            className="h-11 flex-1 rounded-lg bg-danger text-sm hover:bg-danger/90"
           >
             {deleting ? (
               <>

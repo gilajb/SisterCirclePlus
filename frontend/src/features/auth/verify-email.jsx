@@ -29,7 +29,7 @@ export function VerifyEmail() {
   }, [uid, token]);
 
   if (status === "verifying") {
-    return <p className="text-muted-foreground text-sm">Verifying your email…</p>;
+    return <p className="text-sm text-muted-foreground">Verifying your email…</p>;
   }
 
   if (status === "done") {
@@ -37,7 +37,7 @@ export function VerifyEmail() {
       <>
         <Check className="mx-auto size-8" aria-hidden="true" />
         <h1 className="font-heading text-base font-bold">Email verified</h1>
-        <p className="text-body text-[13px]">Your email address has been confirmed.</p>
+        <p className="text-[13px] text-body">Your email address has been confirmed.</p>
         <Button asChild variant="plum" size="xl" className="mt-2 w-full">
           <Link href="/dashboard">
             Go to Dashboard <ArrowRight aria-hidden="true" />
@@ -52,7 +52,7 @@ export function VerifyEmail() {
       <ErrorBanner
         message={status === "missing" ? "This verification link is missing its token." : error}
       />
-      <p className="text-muted-foreground text-[13px]">
+      <p className="text-[13px] text-muted-foreground">
         You can request a new verification email from your dashboard.
       </p>
     </>

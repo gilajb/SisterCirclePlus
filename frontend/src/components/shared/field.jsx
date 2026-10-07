@@ -14,7 +14,7 @@ export function Field({ label, hint, className, children }) {
     <div className={cn("flex flex-col gap-1.5 text-left", className)}>
       <Label htmlFor={id}>{label}</Label>
       {typeof children === "function" ? children(id) : children}
-      {hint ? <p className="text-muted-foreground text-xs">{hint}</p> : null}
+      {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }

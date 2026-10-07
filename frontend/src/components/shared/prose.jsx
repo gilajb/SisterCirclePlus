@@ -3,8 +3,8 @@
 export function Section({ title, children }) {
   return (
     <section className="mb-8">
-      <h2 className="font-heading mb-3 text-lg font-bold">{title}</h2>
-      <div className="text-body text-sm leading-[1.7]">{children}</div>
+      <h2 className="mb-3 font-heading text-lg font-bold">{title}</h2>
+      <div className="text-sm leading-[1.7] text-body">{children}</div>
     </section>
   );
 }
@@ -19,10 +19,10 @@ export function Table({ children }) {
 
 export function Th({ children }) {
   return (
-    <th className="text-muted-foreground border-b px-2.5 py-2 text-left font-bold">{children}</th>
+    <th className="border-b px-2.5 py-2 text-left font-bold text-muted-foreground">{children}</th>
   );
 }
 
 export function Td({ children }) {
-  return <td className="text-body border-b px-2.5 py-2">{children}</td>;
+  return <td className="border-b px-2.5 py-2 text-body">{children}</td>;
 }

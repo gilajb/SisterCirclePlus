@@ -90,7 +90,7 @@ function LoginForm() {
         onChange={setPassword}
       />
       <div className="text-right">
-        <Link href="/reset-password" className="text-primary text-[13px] font-medium">
+        <Link href="/reset-password" className="text-[13px] font-medium text-primary">
           Forgot password?
         </Link>
       </div>
@@ -128,7 +128,7 @@ function RegisterForm({ institution }) {
       setError(
         institution
           ? "Please fill in all fields."
-          : "Please fill in your name, username, email, age, and password."
+          : "Please fill in your name, username, email, age, and password.",
       );
       return;
     }
@@ -170,8 +170,8 @@ function RegisterForm({ institution }) {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-[18px]">
       {institution ? (
-        <div className="border-gold-border bg-gold-light text-gold-dark rounded-xl border p-5">
-          <h2 className="font-heading mb-2 text-base font-bold">
+        <div className="rounded-xl border border-gold-border bg-gold-light p-5 text-gold-dark">
+          <h2 className="mb-2 font-heading text-base font-bold">
             Institutional Portal Registration
           </h2>
           <p className="text-sm leading-relaxed">
@@ -230,7 +230,7 @@ function RegisterForm({ institution }) {
       {minor ? <GuardianEmailInput value={guardianEmail} onChange={setGuardianEmail} /> : null}
 
       {institution ? null : (
-        <div className="border-gold-border bg-gold-light text-gold-dark flex items-center gap-2.5 rounded-[10px] border px-4 py-3">
+        <div className="flex items-center gap-2.5 rounded-[10px] border border-gold-border bg-gold-light px-4 py-3 text-gold-dark">
           <Gift className="size-4 shrink-0" aria-hidden="true" />
           <span className="text-[13px] font-semibold">
             Your account starts on our Free plan — no payment needed to begin.
@@ -280,8 +280,8 @@ export function AuthPanel() {
             aria-selected={tab === t.id}
             onClick={() => setTab(t.id)}
             className={cn(
-              "text-muted-foreground flex-1 cursor-pointer rounded-full py-[9px] text-sm font-medium transition-colors",
-              tab === t.id && "bg-plum font-bold text-white"
+              "flex-1 cursor-pointer rounded-full py-[9px] text-sm font-medium text-muted-foreground transition-colors",
+              tab === t.id && "bg-plum font-bold text-white",
             )}
           >
             {t.label}
@@ -295,16 +295,16 @@ export function AuthPanel() {
 
       {tab === "chw" ? null : (
         <div className="flex flex-wrap items-center gap-x-3.5 gap-y-2 border-t pt-6">
-          <div className="bg-gold-light text-gold-dark flex size-9 shrink-0 items-center justify-center rounded-lg">
+          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-gold-light text-gold-dark">
             <CirclePlus className="size-[18px]" aria-hidden="true" />
           </div>
-          <span className="text-body min-w-40 flex-1 text-sm">
+          <span className="min-w-40 flex-1 text-sm text-body">
             Represent a School, NGO, or CHW Program?
           </span>
           <button
             type="button"
             onClick={() => setTab("chw")}
-            className="text-gold-dark cursor-pointer text-[13px] font-bold whitespace-nowrap underline"
+            className="cursor-pointer text-[13px] font-bold whitespace-nowrap text-gold-dark underline"
           >
             Register your institution here
           </button>

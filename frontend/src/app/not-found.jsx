@@ -8,9 +8,9 @@ export const metadata = { title: "Page not found" };
 export default function NotFound() {
   return (
     <CenteredCard className="gap-4 py-12">
-      <Flower2 className="text-primary mx-auto size-10" aria-hidden="true" />
+      <Flower2 className="mx-auto size-10 text-primary" aria-hidden="true" />
       <h1 className="font-heading text-xl font-bold">Page not found</h1>
-      <p className="text-body text-sm leading-relaxed">
+      <p className="text-sm leading-relaxed text-body">
         The page you're looking for doesn't exist, or may have moved.
       </p>
       <Button asChild variant="mauve" size="xl" className="mt-2 w-full">

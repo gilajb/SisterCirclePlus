@@ -37,7 +37,9 @@ const PRIVATE_ROUTES = [
 async function capture(page, route, viewport) {
   await page.setViewportSize({ width: viewport.width, height: viewport.height });
   await page.goto(route.path);
-  await page.waitForLoadState("networkidle");
+  // The dev server keeps a hot-reload socket open, so "networkidle" can stall on a
+  // cold compile. Wait for it briefly, then carry on regardless.
+  await page.waitForLoadState("networkidle", { timeout: 10_000 }).catch(() => {});
   await expect(page.locator("body")).not.toBeEmpty();
   await page.screenshot({
     path: `e2e/__screens__/${LABEL}/${route.name}-${viewport.name}.png`,
