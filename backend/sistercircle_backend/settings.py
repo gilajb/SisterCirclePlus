@@ -83,9 +83,16 @@ WSGI_APPLICATION = "sistercircle_backend.wsgi.application"
 # Database
 # ---------------------------------------------------------------------------
 
-DATABASES = {
-    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
-}
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL and DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
 
 # This Postgres instance may be shared with an unrelated project (Render's free tier
 # allows only one DB per account). When DB_SCHEMA is set, ALL of this project's tables —

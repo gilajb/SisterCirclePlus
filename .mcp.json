@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "shadcn": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "shadcn@latest", "mcp", "--cwd", "C:/Users/vboxuser/SisterCirclePlus/frontend"]
+    }
+  }
+}
