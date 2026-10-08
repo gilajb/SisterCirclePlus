@@ -1,17 +1,27 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import SymptomSubmission, User
+from .models import ContactMessage, SymptomSubmission, User
 
 
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
-    list_display = ("username", "email", "age", "location", "is_free_tier", "is_chw", "is_staff")
-    list_filter = ("is_free_tier", "is_chw", "is_staff", "is_active")
+    list_display = ("username", "email", "age", "location", "tier", "is_chw", "is_admin_override", "is_staff")
+    list_filter = ("tier", "is_chw", "is_admin_override", "is_settlement_verified", "is_staff", "is_active")
     fieldsets = UserAdmin.fieldsets + (
         (
             "SisterCircle+ Profile",
-            {"fields": ("age", "location", "is_free_tier", "is_chw")},
+            {
+                "fields": (
+                    "age",
+                    "location",
+                    "tier",
+                    "institutional_license",
+                    "is_chw",
+                    "is_settlement_verified",
+                    "is_admin_override",
+                )
+            },
         ),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
@@ -28,3 +38,11 @@ class SymptomSubmissionAdmin(admin.ModelAdmin):
     list_filter = ("risk_tier",)
     readonly_fields = ("ai_result", "created_at")
     search_fields = ("user__username", "user__email")
+
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ("name", "email", "topic", "created_at")
+    list_filter = ("topic",)
+    readonly_fields = ("name", "email", "topic", "message", "created_at")
+    search_fields = ("name", "email", "message")

@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 from datetime import timedelta
 
@@ -15,11 +16,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ["SECRET_KEY"]   # hard fail if missing
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
+PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY", "")
+PAYSTACK_PUBLIC_KEY = os.environ.get("PAYSTACK_PUBLIC_KEY", "")
 
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ["your-app.onrender.com"]
+# `manage.py test` runs with DEBUG=False (same .env as production, deliberately, so
+# tests exercise prod-like settings) but Django's test client always makes plain HTTP
+# requests. Without this, every test hit SECURE_SSL_REDIRECT below and got a 301
+# instead of a real response — the whole suite was silently unable to catch regressions.
+TESTING = "test" in sys.argv
 
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 # ---------------------------------------------------------------------------
 # Application definition
 # ---------------------------------------------------------------------------
@@ -34,7 +42,9 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "anymail",
     "api",
+    "billing",
 ]
 
 MIDDLEWARE = [
@@ -73,9 +83,39 @@ WSGI_APPLICATION = "sistercircle_backend.wsgi.application"
 # Database
 # ---------------------------------------------------------------------------
 
-DATABASES = {
-    "default": dj_database_url.config(default=os.environ.get("DATABASE_URL"))
-}
+DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL and DEBUG:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+        }
+    }
+else:
+    DATABASES = {"default": dj_database_url.config(default=DATABASE_URL)}
+
+# This Postgres instance may be shared with an unrelated project (Render's free tier
+# allows only one DB per account). When DB_SCHEMA is set, ALL of this project's tables —
+# including Django's own framework tables (django_migrations, auth_permission,
+# django_content_type, django_session, ...) — are isolated into a dedicated schema
+# instead of colliding with whatever else lives in `public`. Run
+# `python manage.py setup_schema` once, BEFORE the first `migrate`, to create it — the
+# schema must already exist before Django connects, otherwise unqualified table creation
+# silently falls back to `public`. Leave DB_SCHEMA unset for a database this project owns
+# outright (e.g. local dev) — behavior is then unchanged, tables just use `public`.
+#
+# Deliberately NOT falling back to `,public` in search_path: Postgres falls through to the
+# next schema in search_path for lookups (not just creation) when a table isn't found in
+# the first one — so with a `public` fallback, Django would silently read the OTHER
+# project's django_migrations table whenever this project's own copy doesn't exist yet
+# (e.g. before the very first migrate), concluding "nothing to apply" instead of actually
+# creating this project's tables. Confirmed by testing locally before this ever touched
+# the shared production database. This project uses no Postgres extensions that would
+# need a `public` fallback (no UUID/pgcrypto usage), so omitting it is safe.
+DB_SCHEMA = os.environ.get("DB_SCHEMA", "")
+if DB_SCHEMA and DATABASES["default"].get("ENGINE") == "django.db.backends.postgresql":
+    DATABASES["default"].setdefault("OPTIONS", {})
+    DATABASES["default"]["OPTIONS"]["options"] = f"-c search_path={DB_SCHEMA}"
 
 # ---------------------------------------------------------------------------
 # Custom user model
@@ -120,7 +160,7 @@ X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
 # Production-only TLS settings — activate when behind HTTPS
-if not DEBUG:
+if not DEBUG and not TESTING:
     SECURE_SSL_REDIRECT = True
     SECURE_HSTS_SECONDS = 31536000         # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
@@ -149,6 +189,11 @@ REST_FRAMEWORK = {
         # Custom scopes (used in views via throttle_scope)
         "login": "5/15min",
         "analyse": "10/hour",
+        "password_reset": "5/hour",
+        "email_verification": "5/hour",
+        "register": "10/hour",
+        "checkout": "10/hour",
+        "contact": "5/hour",
     },
 }
 
@@ -169,12 +214,55 @@ SIMPLE_JWT = {
 }
 
 # ---------------------------------------------------------------------------
+# Email — used for password reset
+# ---------------------------------------------------------------------------
+
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:5173")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "no-reply@sistercircleplus.com")
+# Inbox that receives contact-form notifications — the same address shown on the landing
+# page footer, so a submission and the "email us directly" fallback land in the same place.
+CONTACT_EMAIL = os.environ.get("CONTACT_EMAIL", "sistercircleplus@protonmail.com")
+
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", "587"))
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True") == "True"
+
+BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
+
+if BREVO_API_KEY:
+    # HTTP API, not SMTP — Render (and most PaaS hosts) block outbound SMTP ports
+    # (25/465/587) entirely. A plain send_mail() over the smtp backend below works fine
+    # locally but hangs in production until Gunicorn's worker-timeout kills the process
+    # mid-connect (confirmed via a WORKER TIMEOUT + smtplib.connect() traceback in prod
+    # logs) — fail_silently can't catch that because the worker is killed from outside,
+    # never raises a normal exception. Anymail's Brevo backend goes over HTTPS instead,
+    # which is never blocked. Requires a Brevo "Sender" (single-address verification, no
+    # domain needed) rather than a domain-authenticated sender.
+    EMAIL_BACKEND = "anymail.backends.brevo.EmailBackend"
+    ANYMAIL = {"BREVO_API_KEY": BREVO_API_KEY}
+elif EMAIL_HOST_USER and EMAIL_HOST_PASSWORD:
+    # Local-dev-only fallback — works on a normal ISP connection but NOT on Render in
+    # production, see the BREVO_API_KEY branch above.
+    EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+else:
+    # No email credentials set yet — print reset emails to the server console/log instead
+    # of silently dropping them or crashing.
+    EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+# ---------------------------------------------------------------------------
 # CORS — locked to env-configured origins only
 # ---------------------------------------------------------------------------
 
-_cors_raw = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173")
+# Default covers both plausible local dev ports: CRA-style tooling defaults to 3000,
+# Vite (what this frontend actually uses) defaults to 5173. A previous version computed
+# this exact default into an unused `_cors_raw` variable, then rebuilt the real list from
+# a second os.getenv() call with a narrower ":3000-only" default — so an unset
+# CORS_ALLOWED_ORIGINS env var silently CORS-blocked the actual Vite dev server.
 CORS_ALLOWED_ORIGINS = [
-    "https://your-frontend.vercel.app",
+    o.strip()
+    for o in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:5173").split(",")
 ]
 CORS_ALLOW_CREDENTIALS = True
 
@@ -185,12 +273,9 @@ CORS_ALLOW_ALL_ORIGINS = False
 # Logging — never log patient data
 # ---------------------------------------------------------------------------
 
-"""LOGGING = {
+LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "filters": {
-        "require_debug_false": {"()": "django.utils.log.RequireDebugFalse"},
-    },
     "formatters": {
         "safe": {
             "format": "[{levelname}] {asctime} {name}: {message}",
@@ -204,12 +289,58 @@ CORS_ALLOW_ALL_ORIGINS = False
         },
     },
     "loggers": {
-        # Log framework-level events only — never log request bodies
+        # Framework-level events only — never log request bodies
         "django": {"handlers": ["console"], "level": "WARNING", "propagate": False},
         "django.security": {"handlers": ["console"], "level": "ERROR", "propagate": False},
-        # Silence DRF request logging so payloads never appear in logs
+        # Silence DRF's own request logging so payloads never appear in logs
         "rest_framework": {"handlers": [], "level": "CRITICAL", "propagate": False},
-        # Silence our own api app logs in production
+        # Our own app loggers, error-level only. This was previously a Python string
+        # literal (triple-quoted, never assigned to LOGGING) — Django was silently
+        # running on its untouched defaults the whole time. Call sites must still never
+        # pass symptom text, ai_result, or other patient content into a log call — this
+        # config bounds WHERE errors go, not WHAT ends up in them; see api/views.py's
+        # SymptomAnalyseView, which now routes its exception handling through here
+        # instead of a bare traceback.print_exc() (which bypassed logging — and this
+        # config — entirely).
         "api": {"handlers": ["console"], "level": "ERROR", "propagate": False},
+        "billing": {"handlers": ["console"], "level": "ERROR", "propagate": False},
     },
-}"""
+}
+
+# ---------------------------------------------------------------------------
+# Sentry — structured error tracking. Inert unless SENTRY_DSN is set (see
+# .env.example); no account, no DSN, no code path here does anything at all.
+# ---------------------------------------------------------------------------
+
+SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+
+if SENTRY_DSN and not TESTING:
+    import logging as _logging
+
+    import sentry_sdk
+    from sentry_sdk.integrations.django import DjangoIntegration
+    from sentry_sdk.integrations.logging import LoggingIntegration
+
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[
+            DjangoIntegration(),
+            # sentry_sdk's LoggingIntegration hooks Logger.callHandlers directly, so it
+            # sees every ERROR-level record regardless of propagate=False above — this is
+            # what actually gets the api/billing loggers' logger.exception(...) calls
+            # (Claude API failures, DB persist failures, etc.) into Sentry as real events,
+            # not just console lines that scroll off Render's log retention window.
+            LoggingIntegration(level=_logging.INFO, event_level=_logging.ERROR),
+        ],
+        environment="production" if not DEBUG else "development",
+        # This app handles reproductive-health data for minors (see SECURITY.md §1, §6).
+        # Never send request bodies, cookies, headers, or IP addresses to a third party —
+        # and never send local stack-frame variables either, since a traceback inside
+        # SymptomAnalyseView could otherwise carry symptom text or ai_result in scope.
+        send_default_pii=False,
+        include_local_variables=False,
+        # Tracing wasn't enabled for this Sentry project (Error Monitoring + Logs only),
+        # so sampling spans would just be wasted work — 0 means no performance data is
+        # collected at all. Bump this if tracing gets turned on for the project later.
+        traces_sample_rate=0.0,
+    )
